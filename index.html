@@ -80,13 +80,27 @@
   <div class="input-section">
     <h3>Metriche</h3>
     <div class="form-grid three">
-      <div class="field"><label>Rating mercato</label><textarea id="m1_note" placeholder="Nota breve"></textarea></div>
-      <div class="field"><label>Prezzi annunci</label><textarea id="m2_note" placeholder="Nota breve"></textarea></div>
-      <div class="field"><label>Prezzi compravendite</label><textarea id="m3_note" placeholder="Nota breve"></textarea></div>
-      <div class="field"><label>Volumi di mercato</label><textarea id="m4_note" placeholder="Nota breve"></textarea></div>
-      <div class="field"><label>Stock disponibile</label><textarea id="m5_note" placeholder="Nota breve"></textarea></div>
-      <div class="field"><label>Efficienza energetica</label><textarea id="m6_note" placeholder="Nota breve"></textarea></div>
-      <div class="field"><label>Mix dimensionale</label><textarea id="m7_note" placeholder="Nota breve"></textarea></div>
+      <div class="field"><label>Rating mercato</label><input type="text" id="m1_title" placeholder="Es. B/C — Mercato in maturazione"></div>
+      <div class="field"><label>Rating mercato — stato</label><select id="m1_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select></div>
+      <div class="field"><label>Rating mercato — nota</label><input type="text" id="m1_body" placeholder="Es. Appeal medio-basso, liquidità CB, ciclo in crescita..."></div>
+      <div class="field"><label>Prezzi annunci</label><input type="text" id="m2_title" placeholder="Es. ↑ Crescita"></div>
+      <div class="field"><label>Prezzi annunci — stato</label><select id="m2_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select></div>
+      <div class="field"><label>Prezzi annunci — nota</label><input type="text" id="m2_body" placeholder="Es. Pressione rialzo su tutti i segmenti..."></div>
+      <div class="field"><label>Prezzi compravendite</label><input type="text" id="m3_title" placeholder="Es. 3.639 €/mq"></div>
+      <div class="field"><label>Prezzi compravendite — stato</label><select id="m3_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select></div>
+      <div class="field"><label>Prezzi compravendite — nota</label><input type="text" id="m3_body" placeholder="Es. Valori reali solidi, trend stabile..."></div>
+      <div class="field"><label>Volumi di mercato</label><input type="text" id="m4_title" placeholder="Es. ↓ NTN -68%"></div>
+      <div class="field"><label>Volumi di mercato — stato</label><select id="m4_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select></div>
+      <div class="field"><label>Volumi di mercato — nota</label><input type="text" id="m4_body" placeholder="Es. NTN in calo, mercato compresso su tagli compatti..."></div>
+      <div class="field"><label>Stock disponibile</label><input type="text" id="m5_title" placeholder="Es. 127 ann."></div>
+      <div class="field"><label>Stock disponibile — stato</label><select id="m5_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select></div>
+      <div class="field"><label>Stock disponibile — nota</label><input type="text" id="m5_body" placeholder="Es. Offerta abbondante, assorbimento lento..."></div>
+      <div class="field"><label>Efficienza energetica</label><input type="text" id="m6_title" placeholder="Es. Opportunità A"></div>
+      <div class="field"><label>Efficienza energetica — stato</label><select id="m6_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select></div>
+      <div class="field"><label>Efficienza energetica — nota</label><input type="text" id="m6_body" placeholder="Es. Quota green quasi assente, gap €/mq tra classi = 457..."></div>
+      <div class="field"><label>Mix dimensionale</label><input type="text" id="m7_title" placeholder="Es. 75-94 mq"></div>
+      <div class="field"><label>Mix dimensionale — stato</label><select id="m7_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select></div>
+      <div class="field"><label>Mix dimensionale — nota</label><input type="text" id="m7_body" placeholder="Es. Trilocali 42%, bilo 30%, sup. media cercata 75 mq..."></div>
     </div>
   </div>
 

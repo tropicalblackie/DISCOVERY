@@ -688,12 +688,16 @@ function applySmartSuggestions() {
   const mqBp = getNumberValue('f_mq_bp');
   const mqMicro = getNumberValue('f_mq_micro');
 
-  if (!getFieldValue('m1_note')) {
-    document.getElementById('m1_note').value = `Focus su ${micro}: domanda attiva ma sensibile a prezzo e qualita prodotto.`;
+  if (!getFieldValue('m1_title')) {
+    const titleByCycle = ciclo === 'Crescita' ? 'Mercato in accelerazione' : ciclo === 'Contrazione' ? 'Mercato selettivo' : 'Mercato bilanciato';
+    document.getElementById('m1_title').value = titleByCycle;
   }
-  if (!getFieldValue('m2_note')) {
+  if (!getFieldValue('m1_body')) {
+    document.getElementById('m1_body').value = `Focus su ${micro}: domanda attiva ma sensibile a prezzo e qualita prodotto.`;
+  }
+  if (!getFieldValue('m2_body')) {
     const trend = ciclo === 'Crescita' ? 'Pressione rialzista' : ciclo === 'Contrazione' ? 'Mercato difensivo' : 'Stabilita in consolidamento';
-    document.getElementById('m2_note').value = `${trend} con attenzione al posizionamento iniziale.`;
+    document.getElementById('m2_body').value = `${trend} con attenzione al posizionamento iniziale.`;
   }
   if (!getFieldValue('tw1')) {
     document.getElementById('tw1').value = `Concentrare l'offerta su tagli ad alta assorbibilita in ${micro}.`;
@@ -809,9 +813,9 @@ async function generateDoc() {
   const deprezzo = getFieldValue('f_deprezzo');
   const metrics = [1, 2, 3, 4, 5, 6, 7].map((i) => ({
     label: ['Rating di mercato', 'Prezzi annunci', 'Prezzi compravendite', 'Volumi di mercato', 'Stock disponibile', 'Efficienza energetica', 'Mix dimensionale'][i - 1],
-    title: getFieldValue(`m${i}_note`) || getFieldValue(`m${i}_title`),
-    color: 'neutral',
-    body: ''
+    title: getFieldValue(`m${i}_title`),
+    color: getFieldValue(`m${i}_color`),
+    body: getFieldValue(`m${i}_body`)
   }));
   const cantieri = getCantieriData();
   const rankedCantieri = buildRankedCantieri(cantieri, mqBp);
