@@ -967,6 +967,23 @@ function scheduleRefresh() {
   renderLivePanel();
 }
 
+function initLaunchSequence() {
+  const launch = document.getElementById('launch-screen');
+  if (!launch) return;
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const visibleMs = reduceMotion ? 220 : 1600;
+  const exitMs = reduceMotion ? 60 : 480;
+
+  requestAnimationFrame(() => launch.classList.add('is-visible'));
+
+  window.setTimeout(() => {
+    document.body.classList.remove('app-loading');
+    launch.classList.add('is-exit');
+    window.setTimeout(() => launch.remove(), exitMs);
+  }, visibleMs);
+}
+
 function initAutosave() {
   document.addEventListener('input', (event) => {
     if (!event.target.closest('#input-panel')) return;
@@ -1001,6 +1018,7 @@ window.duplicateProject = duplicateProject;
 window.deleteCurrentProject = deleteCurrentProject;
 window.applySmartSuggestions = applySmartSuggestions;
 
+initLaunchSequence();
 loadArchive();
 initAutosave();
 if (!restoreActiveState()) {

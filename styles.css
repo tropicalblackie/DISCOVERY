@@ -54,6 +54,63 @@ body {
   min-width: 0;
   overflow-x: hidden;
 }
+body.app-loading #workspace-shell,
+body.app-loading #doc-output {
+  opacity: 0;
+  transform: translateY(8px);
+}
+#workspace-shell,
+#doc-output {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+#launch-screen {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 12%, #f8f4ff 0, #f2eef9 42%, #ece8f4 100%);
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.45s ease, filter 0.45s ease;
+}
+#launch-screen.is-visible { opacity: 1; }
+#launch-screen.is-exit {
+  opacity: 0;
+  filter: blur(4px);
+}
+.launch-mark {
+  text-align: center;
+  animation: launchPop 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.launch-title {
+  font-family: var(--sans);
+  font-size: clamp(44px, 7vw, 80px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.94;
+  color: #1b1326;
+}
+.launch-subtitle {
+  margin-top: 8px;
+  font-family: "Alex Brush", cursive;
+  font-size: clamp(18px, 2.2vw, 26px);
+  color: var(--accent);
+  opacity: 0.96;
+}
+@keyframes launchPop {
+  0% { transform: translateY(10px) scale(0.985); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #workspace-shell,
+  #doc-output,
+  #launch-screen {
+    transition: none;
+  }
+  .launch-mark {
+    animation: none;
+  }
+}
 #workspace-shell {
   width: 1320px;
   max-width: calc(100vw - 24px);
