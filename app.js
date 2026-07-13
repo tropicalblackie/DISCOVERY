@@ -67,6 +67,13 @@ function hasMapCoordinates(points) {
   return points.some((point) => point.coords?.lat && point.coords?.lon);
 }
 
+function canRenderFullLeafletMap(points, cantieriData) {
+  const projectPoint = points.find((point) => point.kind === 'project');
+  const comparableCount = cantieriData.slice(0, 8).length;
+  const geocodedComparableCount = points.filter((point) => point.kind === 'comp' && point.coords?.lat && point.coords?.lon).length;
+  return Boolean(projectPoint?.coords?.lat && projectPoint?.coords?.lon) && comparableCount > 0 && geocodedComparableCount === comparableCount;
+}
+
 function renderLeafletMap(points) {
   const mapHost = document.getElementById('leaflet-map');
   if (!mapHost || !window.L) return;
@@ -460,7 +467,8 @@ async function generateDoc() {
       <div class="mc-body">${escapeHtml(metric.body)}</div>
     </div>
   `).join('');
-  const mapVisual = hasMapCoordinates(mapPoints)
+  const useLeafletMap = canRenderFullLeafletMap(mapPoints, cantieri);
+  const mapVisual = useLeafletMap
     ? '<div id="leaflet-map" class="leaflet-map" aria-label="Mappa progetto e comparabili"></div>'
     : buildFallbackMapHtml(cantieri);
   const mapHtml = `
@@ -577,7 +585,7 @@ async function generateDoc() {
   `;
   document.getElementById('input-panel').style.display = 'none';
   document.getElementById('doc-output').style.display = 'block';
-  if (hasMapCoordinates(mapPoints)) {
+  if (useLeafletMap) {
     renderLeafletMap(mapPoints);
   }
   persistFormState();
