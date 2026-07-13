@@ -725,33 +725,7 @@ function applySmartSuggestions() {
 }
 
 function renderLivePanel() {
-  const report = computeQualityReport();
-  const address = [getFieldValue('f_indirizzo'), getFieldValue('f_citta')].filter(Boolean).join(', ');
-  const cantieri = getCantieriData();
-  const ranked = buildRankedCantieri(cantieri, getNumberValue('f_mq_bp'));
-  const decision = getFieldValue('d_esito') || 'Da definire';
-
-  const liveName = document.getElementById('live-project-name');
-  const liveQuality = document.getElementById('live-quality');
-  const liveWarnings = document.getElementById('live-warnings');
-  const liveSummary = document.getElementById('live-summary');
-
-  if (liveName) liveName.textContent = getActiveArchiveItem()?.name || 'Nuova scheda';
-  if (liveQuality) liveQuality.textContent = `QUALITA ${report.score}/100`;
-  if (liveWarnings) {
-    liveWarnings.innerHTML = report.warnings.length
-      ? report.warnings.slice(0, 3).map((item) => `• ${escapeHtml(item)}`).join('<br>')
-      : 'Tutti i controlli principali sono in linea.';
-  }
-  if (liveSummary) {
-    const top = ranked.slice(0, 3).map((item, index) => `${index + 1}. ${(item.nome || 'Comparabile')} (${Math.round(item.rankScore)}/100)`).join('<br>');
-    liveSummary.innerHTML = `
-      <strong>${escapeHtml(address || 'Inserisci indirizzo e citta')}</strong>
-      Decisione: <strong>${escapeHtml(decision)}</strong><br>
-      Cantieri completi: <strong>${ranked.filter((item) => item.addr && item.mq > 0).length}</strong><br>
-      Top ranking:<br>${top || 'Nessun cantiere ancora valutato'}
-    `;
-  }
+  // Live panel removed by request.
 }
 
 function getDecisionHtml() {
@@ -970,7 +944,6 @@ async function generateDoc() {
   `;
 
   document.getElementById('input-panel').style.display = 'none';
-  document.getElementById('live-panel').style.display = 'none';
   document.getElementById('doc-output').style.display = 'block';
 
   if (useLeafletMap) {
@@ -984,7 +957,6 @@ async function generateDoc() {
 function backToInput() {
   document.getElementById('doc-output').style.display = 'none';
   document.getElementById('input-panel').style.display = 'block';
-  document.getElementById('live-panel').style.display = 'block';
   updateQualityUI();
   renderLivePanel();
   window.scrollTo(0, 0);

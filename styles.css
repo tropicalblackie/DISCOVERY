@@ -46,20 +46,18 @@ body {
   color: var(--ink);
   background: var(--screen-bg);
   min-height: 100vh;
-  min-width: 1680px;
-  overflow-x: auto;
+  min-width: 0;
+  overflow-x: hidden;
 }
 #workspace-shell {
-  width: 1680px;
+  width: 1320px;
+  max-width: calc(100vw - 24px);
   margin: 0 auto;
   padding: 24px 24px 56px;
-  display: grid;
-  grid-template-columns: 1320px 320px;
-  gap: 16px;
-  align-items: start;
+  display: block;
 }
 #input-panel {
-  width: 1320px;
+  width: 100%;
   margin: 0;
   padding: 10px 0 0;
   display: block;
@@ -888,67 +886,6 @@ h1 {
 .ultra-dense .mc { padding: 3px; }
 .ultra-dense .comp-table td { padding: 2px 3px; }
 
-#live-panel {
-  position: sticky;
-  top: 14px;
-}
-.live-card {
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  background: var(--panel-bg);
-  box-shadow: 0 16px 46px rgba(15, 23, 42, 0.09);
-  padding: 14px;
-  backdrop-filter: blur(24px) saturate(170%);
-}
-.live-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-.live-header h2 {
-  font-size: 18px;
-  letter-spacing: -0.02em;
-}
-#live-project-name {
-  color: var(--muted);
-  font-size: 11px;
-}
-.live-pill {
-  border-radius: 999px;
-  display: inline-flex;
-  padding: 6px 9px;
-  font-size: 10px;
-  font-family: var(--mono);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  background: rgba(17, 18, 20, 0.08);
-  margin-bottom: 10px;
-}
-.live-warnings {
-  font-size: 11px;
-  line-height: 1.4;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
-.live-summary {
-  border: 1px solid rgba(210, 210, 215, 0.8);
-  border-radius: 16px;
-  padding: 10px;
-  min-height: 130px;
-  font-size: 11px;
-  line-height: 1.5;
-  background: rgba(255, 255, 255, 0.82);
-}
-.live-summary strong {
-  display: block;
-  margin-bottom: 4px;
-}
-.live-actions {
-  margin-top: 12px;
-  display: grid;
-  gap: 8px;
-}
 @media print {
   body { background: white; }
   #workspace-shell {
@@ -957,7 +894,6 @@ h1 {
     display: block;
   }
   #input-panel { display: none !important; }
-  #live-panel { display: none !important; }
   #doc-output { display: block !important; }
   .page {
     margin: 0;
