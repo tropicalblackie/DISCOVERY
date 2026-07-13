@@ -35,19 +35,6 @@ function normalizeAddress(value) {
   return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
-function geocodeStatusLabel(status) {
-  if (status === 'ok') return 'OK';
-  if (status === 'pending') return 'WAIT';
-  return 'N.D.';
-}
-
-function updateRowGeoStatus(row, status) {
-  const badge = row?.querySelector('.c_geo_status');
-  if (!badge) return;
-  badge.className = `geo-status c_geo_status ${status}`;
-  badge.textContent = geocodeStatusLabel(status);
-}
-
 async function geocodeAddress(address) {
   const normalized = normalizeAddress(address);
   if (!normalized) return null;
@@ -260,19 +247,6 @@ function buildFallbackMapHtml(rankedCantieri) {
   `;
 }
 
-function updateGeoStatusForAddress(row, address) {
-  const normalized = normalizeAddress(address);
-  if (!normalized) {
-    updateRowGeoStatus(row, 'missing');
-    return;
-  }
-  if (Object.prototype.hasOwnProperty.call(geocodeCache, normalized)) {
-    updateRowGeoStatus(row, geocodeCache[normalized] ? 'ok' : 'missing');
-  } else {
-    updateRowGeoStatus(row, 'pending');
-  }
-}
-
 function addCantiere(data = {}) {
   cantiereCount += 1;
   const rowId = `cantiere_${cantiereCount}`;
@@ -290,15 +264,9 @@ function addCantiere(data = {}) {
     <td><input type="number" class="c_mq" placeholder="6800" value="${escapeHtml(data.mq || '')}"></td>
     <td><input type="text" class="c_en" placeholder="A4" value="${escapeHtml(data.en || '')}"></td>
     <td><input type="text" class="c_stato" placeholder="In vendita" value="${escapeHtml(data.stato || '')}"></td>
-    <td><span class="geo-status c_geo_status pending">WAIT</span></td>
-    <td>
-      <button class="btn btn-small" type="button" onclick="verifyCantiereRow('${rowId}')">Geo</button>
-      <button class="btn btn-small btn-danger" type="button" onclick="removeCantiere('${rowId}')">✕</button>
-    </td>
+    <td><button class="btn btn-small btn-danger" type="button" onclick="removeCantiere('${rowId}')">✕</button></td>
   `;
   tbody.appendChild(tr);
-  const addrInput = tr.querySelector('.c_addr');
-  updateGeoStatusForAddress(tr, addrInput.value);
 }
 
 function removeCantiere(id) {
@@ -306,19 +274,6 @@ function removeCantiere(id) {
   persistFormState();
   updateQualityUI();
   renderLivePanel();
-}
-
-async function verifyCantiereRow(id) {
-  const row = document.getElementById(id);
-  if (!row) return;
-  const address = row.querySelector('.c_addr')?.value?.trim() || '';
-  if (!address) {
-    updateRowGeoStatus(row, 'missing');
-    return;
-  }
-  updateRowGeoStatus(row, 'pending');
-  const coords = await geocodeAddress(address);
-  updateRowGeoStatus(row, coords ? 'ok' : 'missing');
 }
 
 function getCantieriData() {
@@ -733,12 +688,12 @@ function applySmartSuggestions() {
   const mqBp = getNumberValue('f_mq_bp');
   const mqMicro = getNumberValue('f_mq_micro');
 
-  if (!getFieldValue('m1_title')) {
-    const titleByCycle = ciclo === 'Crescita' ? 'Mercato in accelerazione' : ciclo === 'Contrazione' ? 'Mercato selettivo' : 'Mercato bilanciato';
-    document.getElementById('m1_title').value = titleByCycle;
+  if (!getFieldValue('m1_note')) {
+    document.getElementById('m1_note').value = `Focus su ${micro}: domanda attiva ma sensibile a prezzo e qualita prodotto.`;
   }
-  if (!getFieldValue('m1_body')) {
-    document.getElementById('m1_body').value = `Focus su ${micro}: domanda attiva ma sensibile a prezzo e qualita prodotto.`;
+  if (!getFieldValue('m2_note')) {
+    const trend = ciclo === 'Crescita' ? 'Pressione rialzista' : ciclo === 'Contrazione' ? 'Mercato difensivo' : 'Stabilita in consolidamento';
+    document.getElementById('m2_note').value = `${trend} con attenzione al posizionamento iniziale.`;
   }
   if (!getFieldValue('tw1')) {
     document.getElementById('tw1').value = `Concentrare l'offerta su tagli ad alta assorbibilita in ${micro}.`;
@@ -854,9 +809,9 @@ async function generateDoc() {
   const deprezzo = getFieldValue('f_deprezzo');
   const metrics = [1, 2, 3, 4, 5, 6, 7].map((i) => ({
     label: ['Rating di mercato', 'Prezzi annunci', 'Prezzi compravendite', 'Volumi di mercato', 'Stock disponibile', 'Efficienza energetica', 'Mix dimensionale'][i - 1],
-    title: getFieldValue(`m${i}_title`),
-    color: getFieldValue(`m${i}_color`),
-    body: getFieldValue(`m${i}_body`)
+    title: getFieldValue(`m${i}_note`) || getFieldValue(`m${i}_title`),
+    color: 'neutral',
+    body: ''
   }));
   const cantieri = getCantieriData();
   const rankedCantieri = buildRankedCantieri(cantieri, mqBp);
@@ -1039,10 +994,6 @@ function scheduleRefresh() {
 function initAutosave() {
   document.addEventListener('input', (event) => {
     if (!event.target.closest('#input-panel')) return;
-    if (event.target.classList.contains('c_addr')) {
-      const row = event.target.closest('tr');
-      updateGeoStatusForAddress(row, event.target.value);
-    }
     persistFormState();
     scheduleRefresh();
   });
@@ -1062,7 +1013,6 @@ function initAutosave() {
   }
 }
 
-window.verifyCantiereRow = verifyCantiereRow;
 window.addCantiere = addCantiere;
 window.removeCantiere = removeCantiere;
 window.addIpotesi = addIpotesi;
