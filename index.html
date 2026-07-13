@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discovery Strategica — Template</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --line: #d0d0d0;
+    --accent: #c8341a;
+    --accent-bg: #f7ece9;
+    --positive: #1a6b3a;
+    --positive-bg: #eef6f1;
+    --warning-bg: #fffaed;
+    --warning-text: #7a4f00;
+    --neutral-bg: #f8f8f8;
+    --screen-bg: #e8e8e8;
+    --white: #ffffff;
+    --radius: 3px;
+    --mono: 'Courier New', monospace;
+    --sans: 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    font-size: 9pt;
+    color: var(--ink);
+    background: var(--screen-bg);
+  }
+
+  #input-panel {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+    display: block;
+  }
+
+  #input-panel h1 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  #input-panel .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .input-section {
+    background: var(--white);
+    border: 0.5px solid var(--line);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+
+  .input-section h3 {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 12px;
+    font-family: var(--mono);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-grid.four { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .form-grid.full { grid-template-columns: 1fr; }
+
+  .field label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 3px;
+    font-family: var(--mono);
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    border: 0.5px solid var(--line);
+    border-radius: var(--radius);
+    padding: 6px 8px;
+    font-size: 12px;
+    font-family: var(--sans);
+    color: var(--ink);
+    background: var(--white);
+    outline: none;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--accent);
+  }
+
+  .field textarea { resize: vertical; min-height: 60px; }
+
+  #cantieri-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+
+  #cantieri-table th {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--ink);
+    padding: 4px 6px;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  #cantieri-table td { padding: 3px 4px; }
+
+  #cantieri-table td input,
+  #cantieri-table td select {
+    width: 100%;
+    border: 0.5px solid var(--line);
+    border-radius: 2px;
+    padding: 4px 5px;
+    font-size: 10px;
+    color: var(--ink);
+    background: var(--neutral-bg);
+    outline: none;
+  }
+
+  #cantieri-table td input:focus { border-color: var(--accent); background: var(--white); }
+  #cantieri-table tr:hover td input { background: var(--white); }
+
+  .btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border: 0.5px solid var(--line);
+    border-radius: var(--radius);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--sans);
+    background: var(--white);
+    color: var(--ink);
+    transition: background 0.15s;
+  }
+
+  .btn:hover { background: var(--neutral-bg); }
+
+  .btn-accent {
+    background: var(--accent);
+    color: var(--white);
+    border-color: var(--accent);
+    font-size: 13px;
+    padding: 10px 24px;
+  }
+
+  .btn-accent:hover { background: #a82a14; }
+  .btn-small { padding: 4px 10px; font-size: 10px; }
+  .btn-danger { border-color: var(--accent); color: var(--accent); }
+
+  .api-note {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  .api-note a { color: var(--accent); }
+
+  .actions-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+
+  .autosave-note {
+    font-size: 10px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  #doc-output { display: none; }
+
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    background: var(--white);
+    margin: 10mm auto;
+    padding: 11mm 13mm 9mm;
+    position: relative;
+  }
+
+  .doc-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 5px;
+    margin-bottom: 8px;
+    gap: 12px;
+  }
+
+  .doc-eyebrow {
+    font-size: 6pt;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+
+  .doc-address {
+    font-size: 15pt;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .doc-meta { text-align: right; }
+
+  .doc-meta span {
+    display: block;
+    font-size: 6.5pt;
+    font-family: var(--mono);
+    color: var(--muted);
+  }
+
+  .doc-meta .zona { font-size: 8pt; font-weight: 700; color: var(--ink); }
+
+  .doc-section {
+    border-top: 0.5px solid var(--line);
+    padding-top: 5px;
+    margin-top: 7px;
+  }
+
+  .doc-section-label {
+    font-family: var(--mono);
+    font-size: 5.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .price-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+    margin-bottom: 5px;
+  }
+
+  .ps {
+    border-left: 3px solid var(--line);
+    padding-left: 6px;
+  }
+
+  .ps.accent { border-color: var(--accent); }
+
+  .ps .ps-label {
+    font-family: var(--mono);
+    font-size: 5pt;
+    text-transform: uppercase;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  .ps .ps-val {
+    font-size: 13pt;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin: 1px 0;
+  }
+
+  .ps .ps-sub { font-size: 5.5pt; color: var(--muted); }
+
+  .premium-note {
+    background: var(--accent-bg);
+    border-left: 3px solid var(--accent);
+    padding: 4px 7px;
+    font-size: 7pt;
+    line-height: 1.4;
+    border-radius: 0 2px 2px 0;
+    margin-top: 4px;
+  }
+
+  .metriche-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    margin-top: 3px;
+  }
+
+  .mc {
+    border: 0.5px solid var(--line);
+    border-radius: 2px;
+    padding: 4px 3px;
+  }
+
+  .mc.alert { border-color: var(--accent); background: var(--accent-bg); }
+  .mc.pos { border-color: var(--positive); background: var(--positive-bg); }
+  .mc.opp { border-color: var(--warning-text); background: var(--warning-bg); }
+
+  .mc .mc-label {
+    font-family: var(--mono);
+    font-size: 5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 2px;
+    line-height: 1.2;
+  }
+
+  .mc .mc-rating {
+    font-size: 8pt;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 2px;
+  }
+
+  .mc .mc-body { font-size: 6pt; color: #444; line-height: 1.3; }
+
+  #map-container {
+    width: 100%;
+    height: 130px;
+    border: 0.5px solid var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 5px;
+    position: relative;
+  }
+
+  #map-container iframe { width: 100%; height: 100%; border: none; display: block; }
+
+  .map-placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--neutral-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--muted);
+    font-family: var(--mono);
+    text-align: center;
+    padding: 8px;
+  }
+
+  .comp-table { width: 100%; border-collapse: collapse; font-size: 6.5pt; margin-top: 4px; }
+
+  .comp-table th {
+    font-family: var(--mono);
+    font-size: 5.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--ink);
+    padding: 2px 4px 3px;
+    text-align: left;
+  }
+
+  .comp-table td {
+    padding: 2.5px 4px;
+    border-bottom: 0.5px solid var(--line);
+    vertical-align: top;
+  }
+
+  .comp-table tr:nth-child(even) td { background: var(--neutral-bg); }
+
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 1px 4px;
+    border-radius: 2px;
+  }
+
+  .badge-green { background: var(--positive); color: white; }
+  .badge-red { background: var(--accent); color: white; }
+  .badge-gray { background: #d0d0d0; color: var(--ink); }
+  .badge-amber { background: #f0c040; color: #4a2c00; }
+  .price-h { color: var(--accent); font-weight: 700; font-family: var(--mono); }
+  .price-m { color: var(--warning-text); font-weight: 700; font-family: var(--mono); }
+  .price-l { color: var(--positive); font-weight: 700; font-family: var(--mono); }
+
+  .ipotesi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .ip {
+    border: 0.5px solid var(--line);
+    border-radius: 2px;
+    padding: 5px;
+  }
+
+  .ip .ip-num {
+    font-family: var(--mono);
+    font-size: 5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+
+  .ip .ip-title { font-size: 7.5pt; font-weight: 700; margin: 2px 0; line-height: 1.2; }
+  .ip .ip-body { font-size: 6.5pt; color: #333; line-height: 1.35; }
+
+  .ip .ip-price {
+    margin-top: 3px;
+    font-family: var(--mono);
+    font-size: 6pt;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .takeaway {
+    background: var(--ink);
+    color: white;
+    border-radius: 2px;
+    padding: 6px 8px;
+    margin-top: 4px;
+  }
+
+  .tw-item { display: flex; gap: 5px; margin-bottom: 3px; align-items: baseline; }
+  .tw-item:last-child { margin-bottom: 0; }
+  .tw-arrow { font-family: var(--mono); font-size: 7pt; color: #f08070; font-weight: 700; flex-shrink: 0; }
+  .tw-text { font-size: 7pt; line-height: 1.4; }
+
+  .val-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 4px; }
+  .val-box { border: 0.5px solid var(--line); border-radius: 2px; padding: 4px 6px; }
+
+  .val-label {
+    font-family: var(--mono);
+    font-size: 5.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+
+  .val-body { font-size: 7pt; line-height: 1.4; }
+
+  .doc-footer {
+    margin-top: 8px;
+    border-top: 0.5px solid var(--line);
+    padding-top: 4px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .doc-footer span {
+    font-family: var(--mono);
+    font-size: 5.5pt;
+    color: var(--muted);
+  }
+
+  .slot {
+    display: inline-block;
+    border-bottom: 1px solid var(--muted);
+    min-width: 60px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  @media (max-width: 960px) {
+    #input-panel { padding: 16px; }
+    .form-grid,
+    .form-grid.three,
+    .form-grid.four,
+    .metriche-grid,
+    .ipotesi-grid,
+    .val-grid,
+    .price-bar,
+    .doc-header {
+      grid-template-columns: 1fr;
+    }
+
+    .page {
+      width: 100%;
+      min-height: auto;
+      margin: 0;
+      padding: 16px;
+    }
+
+    .doc-meta { text-align: left; }
+    .doc-footer { flex-direction: column; }
+  }
+
+  @media print {
+    body { background: white; }
+    #input-panel { display: none !important; }
+    #doc-output { display: block !important; }
+    .page { margin: 0; width: 210mm; padding: 11mm 13mm 9mm; }
+    .no-print { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="input-panel">
+  <h1>Discovery Strategica — Template</h1>
+  <p class="subtitle">Compila i campi. Il documento A4 si genera automaticamente e i dati restano salvati in locale sul browser.</p>
+
+  <div class="input-section">
+    <h3>Dati Generali (da ONBILD)</h3>
+    <div class="form-grid">
+      <div class="field"><label>Indirizzo progetto</label><input type="text" id="f_indirizzo" placeholder="Es. Via Labus, 1"></div>
+      <div class="field"><label>Città</label><input type="text" id="f_citta" placeholder="Milano"></div>
+      <div class="field"><label>Macro-zona</label><input type="text" id="f_macrozona" placeholder="Es. Bande Nere / Inganni"></div>
+      <div class="field"><label>Micro-zona</label><input type="text" id="f_microzona" placeholder="Es. Primaticcio"></div>
+      <div class="field"><label>Data analisi</label><input type="text" id="f_data" placeholder="Es. Luglio 2025"></div>
+      <div class="field"><label>Ciclo di mercato</label>
+        <select id="f_ciclo">
+          <option value="">— seleziona —</option>
+          <option>Crescita</option>
+          <option>Maturazione</option>
+          <option>Contrazione</option>
+          <option>Ripresa</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-section">
+    <h3>Prezzi annunci (tab "Prezzi annunci" ONBILD)</h3>
+    <div class="form-grid four">
+      <div class="field"><label>€/mq Milano generale</label><input type="number" id="f_mq_milano" placeholder="Es. 5100"></div>
+      <div class="field"><label>€/mq Macro-zona</label><input type="number" id="f_mq_macro" placeholder="Es. 4400"></div>
+      <div class="field"><label>€/mq Micro-zona</label><input type="number" id="f_mq_micro" placeholder="Es. 4148"></div>
+      <div class="field"><label>€/mq Nostro BP</label><input type="number" id="f_mq_bp" placeholder="Es. 5115"></div>
+    </div>
+    <div class="form-grid four" style="margin-top:8px">
+      <div class="field"><label>€/mq Nuovo/In costr.</label><input type="number" id="f_mq_nuovo" placeholder="Es. 4934"></div>
+      <div class="field"><label>€/mq Ottimo/Ristr.</label><input type="number" id="f_mq_ottimo" placeholder="Es. 4639"></div>
+      <div class="field"><label>€/mq Compravenduto</label><input type="number" id="f_mq_cv" placeholder="Es. 3639"></div>
+      <div class="field"><label>Scarto asking/closing %</label><input type="number" id="f_scarto" placeholder="Es. -12"></div>
+    </div>
+    <div class="form-grid" style="margin-top:8px">
+      <div class="field"><label>Motivazione PREMIO (perché il nostro €/mq è più alto)</label><textarea id="f_premio" placeholder="Es. Piano alto, classe A+, unico nuovo in zona, affacci liberi..."></textarea></div>
+      <div class="field"><label>Motivazione DEPREZZAMENTO (se applicabile)</label><textarea id="f_deprezzo" placeholder="Es. Piano terra, loft atipico, contesto non premiante..."></textarea></div>
+    </div>
+  </div>
+
+  <div class="input-section">
+    <h3>Le 7 metriche (da ONBILD — Sintesi + tab singoli)</h3>
+    <div class="form-grid three">
+      <div class="field"><label>Rating mercato — titolo sintetico</label><input type="text" id="m1_title" placeholder="Es. B/C — Mercato in maturazione"></div>
+      <div class="field"><label>Rating mercato — colore</label>
+        <select id="m1_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select>
+      </div>
+      <div class="field"><label>Rating mercato — sintesi (max 2 righe)</label><input type="text" id="m1_body" placeholder="Es. Appeal medio-basso, liquidità CB, ciclo in crescita..."></div>
+
+      <div class="field"><label>Prezzi annunci — titolo</label><input type="text" id="m2_title" placeholder="Es. ↑ Crescita"></div>
+      <div class="field"><label>Prezzi annunci — colore</label>
+        <select id="m2_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select>
+      </div>
+      <div class="field"><label>Prezzi annunci — sintesi</label><input type="text" id="m2_body" placeholder="Es. Pressione rialzo su tutti i segmenti..."></div>
+
+      <div class="field"><label>Prezzi compravendite — titolo</label><input type="text" id="m3_title" placeholder="Es. 3.639 €/mq"></div>
+      <div class="field"><label>Prezzi compravendite — colore</label>
+        <select id="m3_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select>
+      </div>
+      <div class="field"><label>Prezzi compravendite — sintesi</label><input type="text" id="m3_body" placeholder="Es. Valori reali solidi, trend stabile..."></div>
+
+      <div class="field"><label>Volumi di mercato — titolo</label><input type="text" id="m4_title" placeholder="Es. ↓ NTN –68%"></div>
+      <div class="field"><label>Volumi di mercato — colore</label>
+        <select id="m4_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select>
+      </div>
+      <div class="field"><label>Volumi di mercato — sintesi</label><input type="text" id="m4_body" placeholder="Es. NTN in calo, mercato compresso su tagli compatti..."></div>
+
+      <div class="field"><label>Stock disponibile — titolo</label><input type="text" id="m5_title" placeholder="Es. 127 ann."></div>
+      <div class="field"><label>Stock disponibile — colore</label>
+        <select id="m5_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select>
+      </div>
+      <div class="field"><label>Stock disponibile — sintesi</label><input type="text" id="m5_body" placeholder="Es. Offerta abbondante, assorbimento lento, 53% ottimo/ristr."></div>
+
+      <div class="field"><label>Efficienza energetica — titolo</label><input type="text" id="m6_title" placeholder="Es. Opportunità A"></div>
+      <div class="field"><label>Efficienza energetica — colore</label>
+        <select id="m6_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select>
+      </div>
+      <div class="field"><label>Efficienza energetica — sintesi</label><input type="text" id="m6_body" placeholder="Es. Quota green quasi assente, gap €/mq tra classi = 457..."></div>
+
+      <div class="field"><label>Mix dimensionale — titolo</label><input type="text" id="m7_title" placeholder="Es. 75–94 mq"></div>
+      <div class="field"><label>Mix dimensionale — colore</label>
+        <select id="m7_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select>
+      </div>
+      <div class="field"><label>Mix dimensionale — sintesi</label><input type="text" id="m7_body" placeholder="Es. Trilocali 42%, bilo 30%, sup. media cercata 75 mq..."></div>
+    </div>
+  </div>
+
+  <div class="input-section">
+    <h3>Cantieri limitrofi — Comparativi</h3>
+    <p style="font-size:10px; color:var(--muted); margin-bottom:10px;">Inserisci i cantieri rilevati. Se aggiungi una Google Maps API Key, la preview mostra il progetto sulla mappa.</p>
+
+    <div style="margin-bottom:10px;">
+      <div class="field" style="max-width:420px;">
+        <label>Google Maps API Key</label>
+        <input type="text" id="f_apikey" placeholder="Incolla qui la tua API Key">
+        <p class="api-note">Gratuita per uso limitato. Ottienila su <a href="https://developers.google.com/maps/documentation/javascript/get-api-key" target="_blank" rel="noreferrer">console.cloud.google.com</a>. Senza key la mappa mostra un placeholder.</p>
+      </div>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table id="cantieri-table">
+        <thead>
+          <tr>
+            <th style="min-width:130px">Nome / ID Cantiere</th>
+            <th style="min-width:160px">Indirizzo completo</th>
+            <th style="min-width:70px">Zona</th>
+            <th style="min-width:50px">N° unità</th>
+            <th style="min-width:80px">Inizio lavori</th>
+            <th style="min-width:90px">Tipologia prevalente</th>
+            <th style="min-width:60px">Sup. media (mq)</th>
+            <th style="min-width:75px">€/mq medio</th>
+            <th style="min-width:55px">Cl. Energ.</th>
+            <th style="min-width:80px">Stato assorbim.</th>
+            <th style="min-width:30px"></th>
+          </tr>
+        </thead>
+        <tbody id="cantieri-tbody"></tbody>
+      </table>
+    </div>
+    <div class="actions-bar" style="margin-top:8px">
+      <button class="btn btn-small" type="button" onclick="addCantiere()">+ Aggiungi cantiere</button>
+    </div>
+  </div>
+
+  <div class="input-section">
+    <h3>Le 4 ipotesi di sviluppo</h3>
+    <div id="ipotesi-container"></div>
+    <div class="actions-bar" style="margin-top:8px">
+      <button class="btn btn-small" type="button" onclick="addIpotesi()">+ Aggiungi ipotesi</button>
+    </div>
+  </div>
+
+  <div class="input-section">
+    <h3>Takeaway e validazione</h3>
+    <div class="form-grid full">
+      <div class="field"><label>Takeaway 1</label><input type="text" id="tw1" placeholder="Es. Punta su trilocali 80–95 mq: unico gap di offerta nuova in zona..."></div>
+      <div class="field"><label>Takeaway 2</label><input type="text" id="tw2" placeholder="Es. Classe A è moltiplicatore di prezzo, non optional..."></div>
+      <div class="field"><label>Takeaway 3</label><input type="text" id="tw3" placeholder="Es. Pre-selling consigliato: NTN in calo rende rischioso costruire senza demand test..."></div>
+    </div>
+    <div class="form-grid" style="margin-top:10px">
+      <div class="field"><label>Timeline commercializzazione</label><textarea id="val_timeline" placeholder="Es. Avviare pre-selling al 30% avanzamento lavori. Primo ribasso programmato dopo 75 gg senza preliminari..."></textarea></div>
+      <div class="field"><label>Test di validazione layout (da fare prima degli esecutivi)</label><textarea id="val_test" placeholder="Es. Pubblica bilocale 60 mq piano 4° — misura lead in 30 gg. Soglia minima 5 lead qualificati per unità in 45 gg..."></textarea></div>
+    </div>
+  </div>
+
+  <div class="actions-bar">
+    <button class="btn btn-accent" type="button" onclick="generateDoc()">Genera documento A4 →</button>
+    <button class="btn" type="button" onclick="window.print()">Stampa / Esporta PDF</button>
+    <button class="btn" type="button" onclick="resetAllData()">Reset dati</button>
+    <span class="autosave-note">Autosave attivo nel browser</span>
+  </div>
+</div>
+
+<div id="doc-output">
+  <div class="no-print" style="background:var(--ink); padding:10px 20px; display:flex; gap:12px; align-items:center; position:sticky; top:0; z-index:100;">
+    <span style="color:white; font-size:12px; font-family:var(--mono);">Discovery Strategica — Anteprima A4</span>
+    <button class="btn btn-small" type="button" onclick="backToInput()" style="margin-left:auto;">← Modifica</button>
+    <button class="btn btn-small btn-accent" type="button" onclick="window.print()">Stampa / PDF</button>
+  </div>
+
+  <div class="page" id="doc-page"></div>
+</div>
+
+<script>
+const STORAGE_KEY = 'discovery-strategica-template-v1';
+let cantiereCount = 0;
+let ipCount = 0;
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function formatNumber(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed === 0) return '—';
+  return parsed.toLocaleString('it-IT');
+}
+
+function getFieldValue(id) {
+  return document.getElementById(id)?.value?.trim() || '';
+}
+
+function getNumberValue(id) {
+  const parsed = parseFloat(document.getElementById(id)?.value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function addCantiere(data) {
+  const d = data || {};
+  cantiereCount += 1;
+  const rowId = 'cantiere_' + cantiereCount;
+  const tbody = document.getElementById('cantieri-tbody');
+  const tr = document.createElement('tr');
+  tr.id = rowId;
+  tr.innerHTML = `
+    <td><input type="text" class="c_nome" placeholder="Es. Dils-Nizzoli8" value="${escapeHtml(d.nome || '')}"></td>
+    <td><input type="text" class="c_addr" placeholder="Via Marcello Nizzoli, 8, Milano" value="${escapeHtml(d.addr || '')}"></td>
+    <td><input type="text" class="c_zona" placeholder="Es. Bande Nere" value="${escapeHtml(d.zona || '')}"></td>
+    <td><input type="number" class="c_unita" placeholder="12" value="${escapeHtml(d.unita || '')}"></td>
+    <td><input type="text" class="c_inizio" placeholder="Es. Gen 2024" value="${escapeHtml(d.inizio || '')}"></td>
+    <td><input type="text" class="c_tipo" placeholder="Es. Trilo/Quadri" value="${escapeHtml(d.tipo || '')}"></td>
+    <td><input type="number" class="c_sup" placeholder="95" value="${escapeHtml(d.sup || '')}"></td>
+    <td><input type="number" class="c_mq" placeholder="6800" value="${escapeHtml(d.mq || '')}"></td>
+    <td><input type="text" class="c_en" placeholder="A4" value="${escapeHtml(d.en || '')}"></td>
+    <td><input type="text" class="c_stato" placeholder="In vendita" value="${escapeHtml(d.stato || '')}"></td>
+    <td><button class="btn btn-small btn-danger" type="button" onclick="removeCantiere('${rowId}')">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function removeCantiere(id) {
+  document.getElementById(id)?.remove();
+  persistFormState();
+}
+
+function getCantieriData() {
+  return Array.from(document.querySelectorAll('#cantieri-tbody tr'))
+    .map((tr) => ({
+      nome: tr.querySelector('.c_nome').value.trim(),
+      addr: tr.querySelector('.c_addr').value.trim(),
+      zona: tr.querySelector('.c_zona').value.trim(),
+      unita: tr.querySelector('.c_unita').value.trim(),
+      inizio: tr.querySelector('.c_inizio').value.trim(),
+      tipo: tr.querySelector('.c_tipo').value.trim(),
+      sup: tr.querySelector('.c_sup').value.trim(),
+      mq: parseFloat(tr.querySelector('.c_mq').value) || 0,
+      en: tr.querySelector('.c_en').value.trim(),
+      stato: tr.querySelector('.c_stato').value.trim()
+    }))
+    .filter((item) => item.nome || item.addr);
+}
+
+function addIpotesi(data) {
+  const d = data || {};
+  ipCount += 1;
+  const labels = ['Mass Market', 'Premium / Upsell', 'Resa Veloce / Investimento', 'Test di Mercato / Ibrido'];
+  const defaultLabel = labels[ipCount - 1] || 'Ipotesi ' + ipCount;
+  const container = document.getElementById('ipotesi-container');
+  const div = document.createElement('div');
+  div.className = 'ipotesi-editor';
+  div.style.cssText = 'border:0.5px solid var(--line); border-radius:4px; padding:10px; margin-bottom:8px; position:relative;';
+  div.innerHTML = `
+    <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+      <span style="font-family:var(--mono); font-size:10px; font-weight:700; color:var(--accent);">Ipotesi ${ipCount}</span>
+      <input type="text" class="ip_title" placeholder="Titolo (Es. ${escapeHtml(defaultLabel)})" value="${escapeHtml(d.title || '')}" style="flex:1; border:0.5px solid var(--line); border-radius:2px; padding:4px 8px; font-size:12px;">
+      <button class="btn btn-small btn-danger" type="button" onclick="removeIpotesi(this)">✕</button>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+      <div class="field"><label>Descrizione (mix, target, logica)</label><textarea class="ip_body" style="min-height:55px;" placeholder="Es. Mix trilocali 80-95 mq, target prima casa famiglia, colma gap offerta nuova...">${escapeHtml(d.body || '')}</textarea></div>
+      <div class="field"><label>Target €/mq e TTS stimato</label><input type="text" class="ip_price" placeholder="Es. 4.800–5.100 €/mq · TTS 3–5 mesi" value="${escapeHtml(d.price || '')}"></div>
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+function removeIpotesi(button) {
+  button.closest('.ipotesi-editor')?.remove();
+  persistFormState();
+}
+
+function getIpotesiData() {
+  return Array.from(document.querySelectorAll('#ipotesi-container .ipotesi-editor')).map((div, index) => ({
+    num: index + 1,
+    title: div.querySelector('.ip_title').value.trim(),
+    body: div.querySelector('.ip_body').value.trim(),
+    price: div.querySelector('.ip_price').value.trim()
+  }));
+}
+
+function buildEmbedUrl() {
+  const apiKey = getFieldValue('f_apikey');
+  const indirizzo = getFieldValue('f_indirizzo');
+  const citta = getFieldValue('f_citta');
+  if (!apiKey || !indirizzo) return null;
+  const q = encodeURIComponent((indirizzo + ' ' + citta).trim());
+  return `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(apiKey)}&q=${q}&zoom=14`;
+}
+
+function energiaBadge(en) {
+  if (!en) return '<span class="badge badge-gray">—</span>';
+  const upper = en.toUpperCase();
+  if (upper.includes('A')) return `<span class="badge badge-green">${escapeHtml(en)}</span>`;
+  if (['G', 'F', 'E'].some((letter) => upper.includes(letter))) {
+    return `<span class="badge badge-red">${escapeHtml(en)}</span>`;
+  }
+  return `<span class="badge badge-amber">${escapeHtml(en)}</span>`;
+}
+
+function colorMq(mq, refMq) {
+  if (!mq || !refMq) return `<span style="font-family:var(--mono);">${mq ? formatNumber(mq) : '—'}</span>`;
+  if (mq >= refMq * 1.15) return `<span class="price-h">${formatNumber(mq)}</span>`;
+  if (mq <= refMq * 0.85) return `<span class="price-l">${formatNumber(mq)}</span>`;
+  return `<span class="price-m">${formatNumber(mq)}</span>`;
+}
+
+function buildPremiumText(mqBp, mqMicro, premio, deprezzo) {
+  if (mqBp && mqMicro) {
+    const pct = ((mqBp / mqMicro - 1) * 100).toFixed(1);
+    const sign = Number(pct) >= 0 ? '+' : '';
+    let text = `Il nostro €/mq (${formatNumber(mqBp)} €/mq) è <strong>${sign}${escapeHtml(pct)}% rispetto alla media micro-zona</strong> (${formatNumber(mqMicro)} €/mq).`;
+    if (premio) text += ` Motivazione premio: ${escapeHtml(premio)}.`;
+    if (deprezzo) text += ` Deprezzamento applicato su: ${escapeHtml(deprezzo)}.`;
+    return text;
+  }
+  if (premio) return `Motivazione premio: ${escapeHtml(premio)}.`;
+  if (deprezzo) return `Deprezzamento applicato su: ${escapeHtml(deprezzo)}.`;
+  return '';
+}
+
+function generateDoc() {
+  const indirizzo = getFieldValue('f_indirizzo');
+  const citta = getFieldValue('f_citta');
+  const macrozona = getFieldValue('f_macrozona');
+  const microzona = getFieldValue('f_microzona');
+  const data = getFieldValue('f_data');
+  const ciclo = getFieldValue('f_ciclo');
+  const mqMilano = getNumberValue('f_mq_milano');
+  const mqMacro = getNumberValue('f_mq_macro');
+  const mqMicro = getNumberValue('f_mq_micro');
+  const mqBp = getNumberValue('f_mq_bp');
+  const mqNuovo = getNumberValue('f_mq_nuovo');
+  const mqCv = getNumberValue('f_mq_cv');
+  const scarto = getNumberValue('f_scarto');
+  const premio = getFieldValue('f_premio');
+  const deprezzo = getFieldValue('f_deprezzo');
+  const metrics = [1, 2, 3, 4, 5, 6, 7].map((i) => ({
+    label: ['Rating di mercato', 'Prezzi annunci', 'Prezzi compravendite', 'Volumi di mercato', 'Stock disponibile', 'Efficienza energetica', 'Mix dimensionale'][i - 1],
+    title: getFieldValue('m' + i + '_title'),
+    color: getFieldValue('m' + i + '_color'),
+    body: getFieldValue('m' + i + '_body')
+  }));
+  const cantieri = getCantieriData();
+  const ipotesi = getIpotesiData();
+  const takeaway = [getFieldValue('tw1'), getFieldValue('tw2'), getFieldValue('tw3')].filter(Boolean);
+  const valTimeline = getFieldValue('val_timeline');
+  const valTest = getFieldValue('val_test');
+  const embedUrl = buildEmbedUrl();
+  const premiumText = buildPremiumText(mqBp, mqMicro, premio, deprezzo);
+  const metricHtml = metrics.map((metric) => `
+    <div class="mc ${metric.color === 'neutral' ? '' : escapeHtml(metric.color)}">
+      <div class="mc-label">${escapeHtml(metric.label)}</div>
+      <div class="mc-rating">${metric.title ? escapeHtml(metric.title) : '<span class="slot">—</span>'}</div>
+      <div class="mc-body">${escapeHtml(metric.body)}</div>
+    </div>
+  `).join('');
+
+  const mapHtml = embedUrl
+    ? `
+      <div style="display:grid; grid-template-columns:1fr 140px; gap:5px; align-items:start;">
+        <div id="map-container"><iframe src="${embedUrl}" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+        <div style="font-size:5.5pt;">
+          <div style="font-family:var(--mono); font-size:5pt; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:3px;">Legenda pin</div>
+          <div style="font-size:6pt; color:var(--muted); margin-bottom:3px;"><span style="background:#1a6b3a; color:white; border-radius:50%; width:11px; height:11px; display:inline-flex; align-items:center; justify-content:center; font-size:5pt; font-family:var(--mono); margin-right:3px;">P</span><strong>Progetto</strong></div>
+          ${cantieri.filter((c) => c.addr).map((c, index) => `<div style="font-size:6pt; color:var(--muted); margin-bottom:1px;"><span style="background:var(--accent); color:white; border-radius:50%; width:11px; height:11px; display:inline-flex; align-items:center; justify-content:center; font-size:5pt; font-family:var(--mono); margin-right:3px;">${index + 1}</span>${escapeHtml(c.nome)} — ${escapeHtml(c.addr)}</div>`).join('')}
+        </div>
+      </div>
+    `
+    : '<div id="map-container"><div class="map-placeholder">Inserisci la Google Maps API Key nel form per visualizzare la mappa interattiva del progetto</div></div>';
+
+  const cantieriRows = cantieri.length
+    ? cantieri.map((c) => `
+      <tr>
+        <td><strong>${escapeHtml(c.nome || '—')}</strong></td>
+        <td>${escapeHtml(c.addr || '—')}</td>
+        <td>${escapeHtml(c.zona || '—')}</td>
+        <td style="text-align:center; font-family:var(--mono);">${escapeHtml(c.unita || '—')}</td>
+        <td style="font-family:var(--mono); font-size:6pt;">${escapeHtml(c.inizio || '—')}</td>
+        <td>${escapeHtml(c.tipo || '—')}</td>
+        <td style="text-align:center; font-family:var(--mono);">${escapeHtml(c.sup || '—')}</td>
+        <td style="text-align:right;">${colorMq(c.mq, mqMicro || mqMacro)}</td>
+        <td>${energiaBadge(c.en)}</td>
+        <td style="font-size:6pt;">${escapeHtml(c.stato || '—')}</td>
+      </tr>
+    `).join('')
+    : '<tr><td colspan="10" style="text-align:center; color:var(--muted); padding:8px; font-style:italic;">Nessun cantiere inserito</td></tr>';
+
+  const ipotesiHtml = ipotesi.length
+    ? ipotesi.map((ip) => `
+      <div class="ip">
+        <div class="ip-num">Ipotesi 0${ip.num}</div>
+        <div class="ip-title">${ip.title ? escapeHtml(ip.title) : '<span class="slot">—</span>'}</div>
+        <div class="ip-body">${escapeHtml(ip.body)}</div>
+        ${ip.price ? `<div class="ip-price">${escapeHtml(ip.price)}</div>` : ''}
+      </div>
+    `).join('')
+    : '<div class="ip" style="grid-column:1/-1; text-align:center; color:var(--muted); font-style:italic; font-size:7pt;">Nessuna ipotesi inserita</div>';
+
+  const takeawayHtml = takeaway.length
+    ? takeaway.map((item) => `<div class="tw-item"><span class="tw-arrow">→</span><span class="tw-text">${escapeHtml(item)}</span></div>`).join('')
+    : '<div class="tw-item"><span class="tw-arrow">→</span><span class="tw-text" style="opacity:.5; font-style:italic;">Inserisci i takeaway nel form</span></div>';
+
+  const cicloColor = ciclo === 'Crescita' ? 'badge-green' : ciclo === 'Contrazione' ? 'badge-red' : 'badge-amber';
+
+  document.getElementById('doc-page').innerHTML = `
+    <div class="doc-header">
+      <div>
+        <div class="doc-eyebrow">Discovery Strategica · Executive Summary</div>
+        <div class="doc-address">${indirizzo ? escapeHtml(indirizzo) : '<span class="slot">Indirizzo progetto</span>'}${citta ? ', ' + escapeHtml(citta) : ''}</div>
+      </div>
+      <div class="doc-meta">
+        <span class="zona">Micro-zona: ${escapeHtml(microzona || '—')}</span>
+        <span>Macro-zona: ${escapeHtml(macrozona || '—')}</span>
+        <span>Data: ${escapeHtml(data || '—')}</span>
+        ${ciclo ? `<span><span class="badge ${cicloColor}">${escapeHtml(ciclo)}</span></span>` : ''}
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-label">01 · Analisi di Mercato — Posizionamento €/mq</div>
+      <div class="price-bar">
+        <div class="ps">
+          <div class="ps-label">€/mq Milano</div>
+          <div class="ps-val">${formatNumber(mqMilano)}</div>
+          <div class="ps-sub">Riferimento generale città</div>
+        </div>
+        <div class="ps">
+          <div class="ps-label">€/mq Macro-zona</div>
+          <div class="ps-val">${formatNumber(mqMacro)}</div>
+          <div class="ps-sub">${escapeHtml(macrozona || '—')}</div>
+        </div>
+        <div class="ps">
+          <div class="ps-label">€/mq Micro-zona</div>
+          <div class="ps-val">${formatNumber(mqMicro)}</div>
+          <div class="ps-sub">${escapeHtml(microzona || '—')} · Asking medio</div>
+        </div>
+        <div class="ps accent">
+          <div class="ps-label">€/mq Nostro BP</div>
+          <div class="ps-val">${formatNumber(mqBp)}</div>
+          <div class="ps-sub">Target di progetto</div>
+        </div>
+      </div>
+      ${(mqCv || mqNuovo || scarto) ? `
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:3px; margin-bottom:4px; font-size:6.5pt;">
+        ${mqCv ? `<div style="border-left:2px solid var(--line); padding-left:5px;"><span style="color:var(--muted); font-family:var(--mono); font-size:5.5pt; text-transform:uppercase;">€/mq compravenduto reale</span><br><strong style="font-size:10pt;">${formatNumber(mqCv)}</strong></div>` : ''}
+        ${mqNuovo ? `<div style="border-left:2px solid var(--line); padding-left:5px;"><span style="color:var(--muted); font-family:var(--mono); font-size:5.5pt; text-transform:uppercase;">€/mq nuovo / in costruzione</span><br><strong style="font-size:10pt;">${formatNumber(mqNuovo)}</strong></div>` : ''}
+        ${scarto ? `<div style="border-left:2px solid var(--line); padding-left:5px;"><span style="color:var(--muted); font-family:var(--mono); font-size:5.5pt; text-transform:uppercase;">Scarto asking / closing</span><br><strong style="font-size:10pt;">${escapeHtml(String(scarto))}%</strong></div>` : ''}
+      </div>` : ''}
+      ${premiumText ? `<div class="premium-note"><strong>Premio / Deprezzamento:</strong> ${premiumText}</div>` : ''}
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-label">02 · Le 7 Metriche Chiave</div>
+      <div class="metriche-grid">${metricHtml}</div>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-label">03 · Cantieri Limitrofi — Contesto Competitivo</div>
+      ${mapHtml}
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Cantiere</th>
+            <th>Indirizzo</th>
+            <th>Zona</th>
+            <th style="text-align:center">N° unità</th>
+            <th>Inizio lavori</th>
+            <th>Tipologia</th>
+            <th style="text-align:center">Sup. media</th>
+            <th style="text-align:right">€/mq</th>
+            <th>Cl.E.</th>
+            <th>Assorbimento</th>
+          </tr>
+        </thead>
+        <tbody>${cantieriRows}</tbody>
+      </table>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-label">04 · Ipotesi di Sviluppo Data-Driven</div>
+      <div class="ipotesi-grid">${ipotesiHtml}</div>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-label">05 · Takeaway Strategici e Test di Validazione</div>
+      <div class="takeaway">${takeawayHtml}</div>
+      <div class="val-grid">
+        <div class="val-box">
+          <div class="val-label">Timeline commercializzazione</div>
+          <div class="val-body">${valTimeline ? escapeHtml(valTimeline) : '<span class="slot">Da compilare</span>'}</div>
+        </div>
+        <div class="val-box">
+          <div class="val-label">Test di validazione layout (prima degli esecutivi)</div>
+          <div class="val-body">${valTest ? escapeHtml(valTest) : '<span class="slot">Da compilare</span>'}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-footer">
+      <span>${escapeHtml(indirizzo || '—')} · ${escapeHtml(microzona || '—')} · ${escapeHtml(macrozona || '—')}</span>
+      <span>Dati: ONBILD · Benchmark cantieri comparabili</span>
+      <span>Confidenziale — uso interno</span>
+    </div>
+  `;
+
+  document.getElementById('input-panel').style.display = 'none';
+  document.getElementById('doc-output').style.display = 'block';
+  persistFormState();
+  window.scrollTo(0, 0);
+}
+
+function backToInput() {
+  document.getElementById('doc-output').style.display = 'none';
+  document.getElementById('input-panel').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function collectFormState() {
+  const fields = Array.from(document.querySelectorAll('#input-panel input, #input-panel select, #input-panel textarea'));
+  const values = {};
+  fields.forEach((field) => {
+    if (field.id) values[field.id] = field.value;
+  });
+  return {
+    values,
+    cantieri: getCantieriData(),
+    ipotesi: getIpotesiData()
+  };
+}
+
+function persistFormState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectFormState()));
+  } catch (error) {
+    console.error('Impossibile salvare i dati in locale', error);
+  }
+}
+
+function restoreFormState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const state = JSON.parse(raw);
+    Object.entries(state.values || {}).forEach(([id, value]) => {
+      const field = document.getElementById(id);
+      if (field) field.value = value;
+    });
+    document.getElementById('cantieri-tbody').innerHTML = '';
+    document.getElementById('ipotesi-container').innerHTML = '';
+    cantiereCount = 0;
+    ipCount = 0;
+    (state.cantieri || []).forEach((row) => addCantiere(row));
+    (state.ipotesi || []).forEach((row) => addIpotesi(row));
+    return true;
+  } catch (error) {
+    console.error('Impossibile ripristinare i dati salvati', error);
+    return false;
+  }
+}
+
+function resetAllData() {
+  localStorage.removeItem(STORAGE_KEY);
+  document.getElementById('doc-output').style.display = 'none';
+  document.getElementById('input-panel').style.display = 'block';
+  document.querySelectorAll('#input-panel input, #input-panel textarea').forEach((field) => {
+    field.value = '';
+  });
+  document.querySelectorAll('#input-panel select').forEach((field) => {
+    field.selectedIndex = 0;
+  });
+  document.getElementById('cantieri-tbody').innerHTML = '';
+  document.getElementById('ipotesi-container').innerHTML = '';
+  cantiereCount = 0;
+  ipCount = 0;
+  seedDefaultRows();
+}
+
+function seedDefaultRows() {
+  for (let i = 0; i < 3; i += 1) addCantiere();
+  for (let i = 0; i < 4; i += 1) addIpotesi();
+}
+
+function initAutosave() {
+  document.addEventListener('input', (event) => {
+    if (event.target.closest('#input-panel')) persistFormState();
+  });
+  document.addEventListener('change', (event) => {
+    if (event.target.closest('#input-panel')) persistFormState();
+  });
+}
+
+initAutosave();
+if (!restoreFormState()) {
+  seedDefaultRows();
+}
+</script>
+</body>
+</html>
