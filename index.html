@@ -8,12 +8,34 @@
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+<div id="workspace-shell">
 <div id="input-panel">
   <div class="app-intro">
     <div>
       <h1>Discovery</h1>
     </div>
+    <div class="archive-tools">
+      <label for="archive-select">Archivio</label>
+      <div class="archive-row">
+        <select id="archive-select"></select>
+        <button class="btn btn-small" type="button" onclick="createNewProject()">Nuovo</button>
+        <button class="btn btn-small" type="button" onclick="saveCurrentProject()">Salva</button>
+        <button class="btn btn-small" type="button" onclick="duplicateProject()">Duplica</button>
+        <button class="btn btn-small btn-danger" type="button" onclick="deleteCurrentProject()">Elimina</button>
+      </div>
+    </div>
   </div>
+
+  <div class="quality-strip" id="quality-strip">
+    <div class="quality-kpi">
+      <span class="quality-label">Qualita scheda</span>
+      <span id="quality-score">0/100</span>
+    </div>
+    <div class="quality-bar"><span id="quality-bar-fill"></span></div>
+    <div id="quality-state">Da completare</div>
+    <button class="btn btn-small" type="button" onclick="applySmartSuggestions()">Auto-suggerisci</button>
+  </div>
+  <div id="validation-errors" class="validation-errors" aria-live="polite"></div>
 
   <div class="input-section">
     <h3>Dati generali</h3>
@@ -102,6 +124,7 @@
             <th style="min-width:75px">€/mq medio</th>
             <th style="min-width:55px">Cl. Energ.</th>
             <th style="min-width:80px">Stato assorbim.</th>
+            <th style="min-width:70px">Geo</th>
             <th style="min-width:30px"></th>
           </tr>
         </thead>
@@ -136,10 +159,47 @@
     </div>
   </div>
 
+  <div class="input-section">
+    <h3>Decisione operativa</h3>
+    <div class="form-grid three">
+      <div class="field"><label>Decisione</label>
+        <select id="d_esito">
+          <option value="">- seleziona -</option>
+          <option>GO</option>
+          <option>GO condizionato</option>
+          <option>NO GO</option>
+        </select>
+      </div>
+      <div class="field"><label>Confidenza %</label><input type="number" id="d_conf" min="0" max="100" placeholder="Es. 78"></div>
+      <div class="field"><label>Orizzonte verifica</label><input type="text" id="d_when" placeholder="Es. 60 giorni"></div>
+    </div>
+    <div class="form-grid spaced-grid">
+      <div class="field"><label>Motivazione decisione</label><textarea id="d_reason" placeholder="Sintesi breve delle evidenze decisive"></textarea></div>
+      <div class="field"><label>Prossimo passo</label><textarea id="d_next" placeholder="Azione immediata da avviare"></textarea></div>
+    </div>
+  </div>
+
   <div class="actions-bar primary-actions">
     <button class="btn btn-accent" type="button" onclick="generateDoc()">Genera documento A4</button>
     <button class="btn" type="button" onclick="window.print()">Stampa / Esporta PDF</button>
   </div>
+</div>
+
+<aside id="live-panel" class="no-print">
+  <div class="live-card">
+    <div class="live-header">
+      <h2>Live</h2>
+      <span id="live-project-name">Nuova scheda</span>
+    </div>
+    <div id="live-quality" class="live-pill">Qualita 0/100</div>
+    <div id="live-warnings" class="live-warnings"></div>
+    <div id="live-summary" class="live-summary"></div>
+    <div class="live-actions">
+      <button class="btn btn-accent" type="button" onclick="generateDoc()">Genera documento A4</button>
+      <button class="btn" type="button" onclick="window.print()">Stampa / Esporta PDF</button>
+    </div>
+  </div>
+</aside>
 </div>
 
 <div id="doc-output">

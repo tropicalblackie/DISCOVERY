@@ -1,10 +1,19 @@
-const STORAGE_KEY = 'discovery-strategica-template-v2';
-const EXPORT_VERSION = 2;
+const STORAGE_KEY = 'discovery-strategica-template-v3';
+const EXPORT_VERSION = 3;
 const GEOCODE_CACHE_KEY = 'discovery-strategica-geocode-v1';
+const ARCHIVE_STORAGE_KEY = 'discovery-project-archive-v1';
+const ACTIVE_PROJECT_KEY = 'discovery-project-active-v1';
+
 let cantiereCount = 0;
 let ipCount = 0;
 let leafletMapInstance = null;
 let geocodeCache = loadStoredGeocodeCache();
+let archiveIndex = [];
+let suspendAutosave = false;
+
+function uid(prefix) {
+  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+}
 
 function loadStoredGeocodeCache() {
   try {
@@ -24,6 +33,19 @@ function persistGeocodeCache() {
 
 function normalizeAddress(value) {
   return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function geocodeStatusLabel(status) {
+  if (status === 'ok') return 'OK';
+  if (status === 'pending') return 'WAIT';
+  return 'N.D.';
+}
+
+function updateRowGeoStatus(row, status) {
+  const badge = row?.querySelector('.c_geo_status');
+  if (!badge) return;
+  badge.className = `geo-status c_geo_status ${status}`;
+  badge.textContent = geocodeStatusLabel(status);
 }
 
 async function geocodeAddress(address) {
@@ -48,12 +70,16 @@ async function geocodeAddress(address) {
   }
 }
 
-async function resolveMapPoints(projectAddress, cantieriData) {
+function hasCoords(item) {
+  return Boolean(item?.coords?.lat && item?.coords?.lon);
+}
+
+async function resolveMapPoints(projectAddress, rankedCantieri) {
   const points = [];
   const projectCoords = await geocodeAddress(projectAddress);
   points.push({ kind: 'project', label: 'P', name: projectAddress || 'Progetto', coords: projectCoords });
 
-  const comparables = cantieriData.filter((item) => item.addr).slice(0, 8);
+  const comparables = rankedCantieri.filter((item) => item.addr).slice(0, 8);
   for (let index = 0; index < comparables.length; index += 1) {
     const item = comparables[index];
     const coords = await geocodeAddress(item.addr);
@@ -63,15 +89,11 @@ async function resolveMapPoints(projectAddress, cantieriData) {
   return points;
 }
 
-function hasMapCoordinates(points) {
-  return points.some((point) => point.coords?.lat && point.coords?.lon);
-}
-
-function canRenderFullLeafletMap(points, cantieriData) {
+function canRenderFullLeafletMap(points, rankedCantieri) {
   const projectPoint = points.find((point) => point.kind === 'project');
-  const comparableCount = cantieriData.slice(0, 8).length;
-  const geocodedComparableCount = points.filter((point) => point.kind === 'comp' && point.coords?.lat && point.coords?.lon).length;
-  return Boolean(projectPoint?.coords?.lat && projectPoint?.coords?.lon) && comparableCount > 0 && geocodedComparableCount === comparableCount;
+  const comparableCount = rankedCantieri.filter((item) => item.addr).slice(0, 8).length;
+  const geocodedComparableCount = points.filter((point) => point.kind === 'comp' && hasCoords(point)).length;
+  return Boolean(hasCoords(projectPoint)) && comparableCount > 0 && geocodedComparableCount === comparableCount;
 }
 
 function renderLeafletMap(points) {
@@ -83,7 +105,7 @@ function renderLeafletMap(points) {
     leafletMapInstance = null;
   }
 
-  const validPoints = points.filter((point) => point.coords?.lat && point.coords?.lon);
+  const validPoints = points.filter((point) => hasCoords(point));
   if (!validPoints.length) return;
 
   leafletMapInstance = window.L.map(mapHost, {
@@ -200,7 +222,7 @@ function buildPremiumText(mqBp, mqMicro, premio, deprezzo) {
   return '';
 }
 
-function buildFallbackMapHtml(cantieriData) {
+function buildFallbackMapHtml(rankedCantieri) {
   const projectName = getFieldValue('f_indirizzo') || 'Progetto';
   const nodes = [{ label: 'P', name: projectName, className: 'project', left: 48, top: 50 }];
   const positions = [
@@ -214,7 +236,7 @@ function buildFallbackMapHtml(cantieriData) {
     { left: 84, top: 42 }
   ];
 
-  cantieriData.slice(0, 8).forEach((cantiere, index) => {
+  rankedCantieri.slice(0, 8).forEach((cantiere, index) => {
     const pos = positions[index];
     nodes.push({
       label: String(index + 1),
@@ -238,9 +260,22 @@ function buildFallbackMapHtml(cantieriData) {
   `;
 }
 
+function updateGeoStatusForAddress(row, address) {
+  const normalized = normalizeAddress(address);
+  if (!normalized) {
+    updateRowGeoStatus(row, 'missing');
+    return;
+  }
+  if (Object.prototype.hasOwnProperty.call(geocodeCache, normalized)) {
+    updateRowGeoStatus(row, geocodeCache[normalized] ? 'ok' : 'missing');
+  } else {
+    updateRowGeoStatus(row, 'pending');
+  }
+}
+
 function addCantiere(data = {}) {
   cantiereCount += 1;
-  const rowId = 'cantiere_' + cantiereCount;
+  const rowId = `cantiere_${cantiereCount}`;
   const tbody = document.getElementById('cantieri-tbody');
   const tr = document.createElement('tr');
   tr.id = rowId;
@@ -255,14 +290,35 @@ function addCantiere(data = {}) {
     <td><input type="number" class="c_mq" placeholder="6800" value="${escapeHtml(data.mq || '')}"></td>
     <td><input type="text" class="c_en" placeholder="A4" value="${escapeHtml(data.en || '')}"></td>
     <td><input type="text" class="c_stato" placeholder="In vendita" value="${escapeHtml(data.stato || '')}"></td>
-    <td><button class="btn btn-small btn-danger" type="button" onclick="removeCantiere('${rowId}')">✕</button></td>
+    <td><span class="geo-status c_geo_status pending">WAIT</span></td>
+    <td>
+      <button class="btn btn-small" type="button" onclick="verifyCantiereRow('${rowId}')">Geo</button>
+      <button class="btn btn-small btn-danger" type="button" onclick="removeCantiere('${rowId}')">✕</button>
+    </td>
   `;
   tbody.appendChild(tr);
+  const addrInput = tr.querySelector('.c_addr');
+  updateGeoStatusForAddress(tr, addrInput.value);
 }
 
 function removeCantiere(id) {
   document.getElementById(id)?.remove();
   persistFormState();
+  updateQualityUI();
+  renderLivePanel();
+}
+
+async function verifyCantiereRow(id) {
+  const row = document.getElementById(id);
+  if (!row) return;
+  const address = row.querySelector('.c_addr')?.value?.trim() || '';
+  if (!address) {
+    updateRowGeoStatus(row, 'missing');
+    return;
+  }
+  updateRowGeoStatus(row, 'pending');
+  const coords = await geocodeAddress(address);
+  updateRowGeoStatus(row, coords ? 'ok' : 'missing');
 }
 
 function getCantieriData() {
@@ -283,7 +339,7 @@ function getCantieriData() {
 function addIpotesi(data = {}) {
   ipCount += 1;
   const labels = ['Mass Market', 'Premium / Upsell', 'Resa Veloce / Investimento', 'Test di Mercato / Ibrido'];
-  const defaultLabel = labels[ipCount - 1] || 'Ipotesi ' + ipCount;
+  const defaultLabel = labels[ipCount - 1] || `Ipotesi ${ipCount}`;
   const container = document.getElementById('ipotesi-container');
   const div = document.createElement('div');
   div.className = 'ipotesi-editor';
@@ -304,6 +360,8 @@ function addIpotesi(data = {}) {
 function removeIpotesi(button) {
   button.closest('.ipotesi-editor')?.remove();
   persistFormState();
+  updateQualityUI();
+  renderLivePanel();
 }
 
 function getIpotesiData() {
@@ -315,24 +373,93 @@ function getIpotesiData() {
   }));
 }
 
-function collectFormState() {
+function collectFieldValues() {
   const fields = Array.from(document.querySelectorAll('#input-panel input, #input-panel select, #input-panel textarea'));
   const values = {};
   fields.forEach((field) => {
     if (field.id) values[field.id] = field.value;
   });
-  return { version: EXPORT_VERSION, exportedAt: new Date().toISOString(), values, cantieri: getCantieriData(), ipotesi: getIpotesiData() };
+  return values;
 }
 
-function persistFormState() {
+function collectFormState() {
+  return {
+    version: EXPORT_VERSION,
+    exportedAt: new Date().toISOString(),
+    values: collectFieldValues(),
+    cantieri: getCantieriData(),
+    ipotesi: getIpotesiData()
+  };
+}
+
+function ensureArchiveShape(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((item) => item && item.id && item.name && item.state).map((item) => ({
+    id: item.id,
+    name: item.name,
+    updatedAt: item.updatedAt || new Date().toISOString(),
+    state: item.state
+  }));
+}
+
+function loadArchive() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectFormState()));
-  } catch (error) {
-    console.error('Impossibile salvare i dati in locale', error);
+    archiveIndex = ensureArchiveShape(JSON.parse(localStorage.getItem(ARCHIVE_STORAGE_KEY) || '[]'));
+  } catch {
+    archiveIndex = [];
+  }
+
+  if (!archiveIndex.length) {
+    const legacyRaw = localStorage.getItem(STORAGE_KEY);
+    const baseState = legacyRaw ? JSON.parse(legacyRaw) : null;
+    const seedState = baseState || { version: EXPORT_VERSION, exportedAt: new Date().toISOString(), values: {}, cantieri: [], ipotesi: [] };
+    archiveIndex = [{ id: uid('proj'), name: 'Scheda 1', updatedAt: new Date().toISOString(), state: seedState }];
+    persistArchive();
+  }
+
+  refreshArchiveSelect();
+}
+
+function persistArchive() {
+  try {
+    localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(archiveIndex));
+  } catch {
+    // Ignore archive persistence failures.
   }
 }
 
+function getActiveProjectId() {
+  const stored = localStorage.getItem(ACTIVE_PROJECT_KEY);
+  if (stored && archiveIndex.some((item) => item.id === stored)) return stored;
+  const firstId = archiveIndex[0]?.id || '';
+  if (firstId) localStorage.setItem(ACTIVE_PROJECT_KEY, firstId);
+  return firstId;
+}
+
+function setActiveProjectId(id) {
+  if (!id) return;
+  localStorage.setItem(ACTIVE_PROJECT_KEY, id);
+  const select = document.getElementById('archive-select');
+  if (select) select.value = id;
+}
+
+function getActiveArchiveItem() {
+  const activeId = getActiveProjectId();
+  return archiveIndex.find((item) => item.id === activeId) || archiveIndex[0];
+}
+
+function refreshArchiveSelect() {
+  const select = document.getElementById('archive-select');
+  if (!select) return;
+  const activeId = getActiveProjectId();
+  select.innerHTML = archiveIndex
+    .map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}</option>`)
+    .join('');
+  select.value = activeId;
+}
+
 function applyState(state) {
+  suspendAutosave = true;
   Object.entries(state.values || {}).forEach(([id, value]) => {
     const field = document.getElementById(id);
     if (field) field.value = value;
@@ -343,69 +470,135 @@ function applyState(state) {
   ipCount = 0;
   (state.cantieri || []).forEach((row) => addCantiere(row));
   (state.ipotesi || []).forEach((row) => addIpotesi(row));
-  if (!(state.cantieri || []).length && !(state.ipotesi || []).length) seedDefaultRows();
+  if (!(state.cantieri || []).length) {
+    for (let i = 0; i < 3; i += 1) addCantiere();
+  }
+  if (!(state.ipotesi || []).length) {
+    for (let i = 0; i < 4; i += 1) addIpotesi();
+  }
+  suspendAutosave = false;
+  updateQualityUI();
+  renderLivePanel();
 }
 
-function restoreFormState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return false;
-    applyState(JSON.parse(raw));
-    return true;
-  } catch (error) {
-    console.error('Impossibile ripristinare i dati salvati', error);
-    return false;
+function loadProjectById(id) {
+  const item = archiveIndex.find((entry) => entry.id === id);
+  if (!item) return;
+  setActiveProjectId(id);
+  applyState(item.state);
+}
+
+function saveCurrentProject() {
+  const active = getActiveArchiveItem();
+  if (!active) return;
+  active.state = collectFormState();
+  active.updatedAt = new Date().toISOString();
+  persistArchive();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(active.state));
+  updateQualityUI();
+  renderLivePanel();
+}
+
+function createNewProject() {
+  const index = archiveIndex.length + 1;
+  const name = window.prompt('Nome nuova scheda', `Scheda ${index}`)?.trim();
+  if (!name) return;
+  const fresh = {
+    id: uid('proj'),
+    name,
+    updatedAt: new Date().toISOString(),
+    state: { version: EXPORT_VERSION, exportedAt: new Date().toISOString(), values: {}, cantieri: [], ipotesi: [] }
+  };
+  archiveIndex.unshift(fresh);
+  persistArchive();
+  refreshArchiveSelect();
+  loadProjectById(fresh.id);
+}
+
+function duplicateProject() {
+  const active = getActiveArchiveItem();
+  if (!active) return;
+  const name = window.prompt('Nome copia', `${active.name} copia`)?.trim();
+  if (!name) return;
+  const clone = {
+    id: uid('proj'),
+    name,
+    updatedAt: new Date().toISOString(),
+    state: JSON.parse(JSON.stringify(collectFormState()))
+  };
+  archiveIndex.unshift(clone);
+  persistArchive();
+  refreshArchiveSelect();
+  loadProjectById(clone.id);
+}
+
+function deleteCurrentProject() {
+  if (archiveIndex.length === 1) {
+    alert('Serve almeno una scheda in archivio.');
+    return;
+  }
+  const active = getActiveArchiveItem();
+  if (!active) return;
+  const ok = window.confirm(`Eliminare "${active.name}"?`);
+  if (!ok) return;
+  archiveIndex = archiveIndex.filter((item) => item.id !== active.id);
+  persistArchive();
+  refreshArchiveSelect();
+  const next = archiveIndex[0];
+  if (next) loadProjectById(next.id);
+}
+
+function persistFormState() {
+  if (suspendAutosave) return;
+  const state = collectFormState();
+  const active = getActiveArchiveItem();
+  if (active) {
+    active.state = state;
+    active.updatedAt = new Date().toISOString();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    persistArchive();
   }
 }
 
-function downloadJson() {
-  const payload = JSON.stringify(collectFormState(), null, 2);
-  const blob = new Blob([payload], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  const slugBase = (getFieldValue('f_indirizzo') || 'discovery-strategica').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  link.href = url;
-  link.download = `${slugBase || 'discovery-strategica'}.json`;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-function importJsonFile(file) {
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    try {
-      const state = JSON.parse(String(event.target?.result || '{}'));
-      applyState(state);
-      persistFormState();
-      if (document.getElementById('doc-output').style.display === 'block') generateDoc();
-    } catch (error) {
-      alert('Il file JSON non è valido.');
-    }
-  };
-  reader.readAsText(file);
-}
-
-function resetAllData() {
-  localStorage.removeItem(STORAGE_KEY);
-  document.getElementById('doc-output').style.display = 'none';
-  document.getElementById('input-panel').style.display = 'block';
-  document.querySelectorAll('#input-panel input, #input-panel textarea').forEach((field) => {
-    if (field.type === 'file') return;
-    field.value = '';
-  });
-  document.querySelectorAll('#input-panel select').forEach((field) => {
-    field.selectedIndex = 0;
-  });
-  document.getElementById('cantieri-tbody').innerHTML = '';
-  document.getElementById('ipotesi-container').innerHTML = '';
-  cantiereCount = 0;
-  ipCount = 0;
-  seedDefaultRows();
+function restoreActiveState() {
+  const active = getActiveArchiveItem();
+  if (!active) return false;
+  applyState(active.state || {});
+  return true;
 }
 
 function seedDefaultRows() {
   for (let i = 0; i < 3; i += 1) addCantiere();
   for (let i = 0; i < 4; i += 1) addIpotesi();
+}
+
+function scoreCantiere(cantiere, mqBp) {
+  let score = 0;
+  if (cantiere.addr) score += 12;
+  if (cantiere.mq > 0) {
+    score += 30;
+    if (mqBp > 0) {
+      const delta = Math.abs((cantiere.mq / mqBp) - 1);
+      score += Math.max(0, 30 - Math.round(delta * 100));
+    }
+  }
+  const en = (cantiere.en || '').toUpperCase();
+  if (en.includes('A')) score += 14;
+  else if (en.includes('B') || en.includes('C')) score += 9;
+  else if (en) score += 4;
+
+  const stato = (cantiere.stato || '').toLowerCase();
+  if (stato.includes('vend') || stato.includes('assorb') || stato.includes('prenot')) score += 10;
+  else if (stato.includes('attesa') || stato.includes('lento')) score += 5;
+
+  if (cantiere.unita) score += 4;
+  return Math.min(100, score);
+}
+
+function buildRankedCantieri(cantieri, mqBp) {
+  return cantieri
+    .map((cantiere) => ({ ...cantiere, rankScore: scoreCantiere(cantiere, mqBp) }))
+    .sort((a, b) => b.rankScore - a.rankScore);
 }
 
 function generateCompetitorMetrics(cantieri, mqBp) {
@@ -429,7 +622,221 @@ function metricKpiHtml(metrics, mqBp) {
   `;
 }
 
+function normalizeDecisionClass(decision) {
+  if (decision === 'GO') return 'decision-go';
+  if (decision === 'GO condizionato') return 'decision-go-soft';
+  if (decision === 'NO GO') return 'decision-no';
+  return '';
+}
+
+function getDensityClass(cantieriCount, ipotesiCount, textLoad) {
+  if (cantieriCount >= 8 || ipotesiCount >= 6 || textLoad > 1600) return 'ultra-dense';
+  if (cantieriCount >= 6 || ipotesiCount >= 5 || textLoad > 1000) return 'dense-layout';
+  return '';
+}
+
+function computeQualityReport() {
+  const indirizzo = getFieldValue('f_indirizzo');
+  const citta = getFieldValue('f_citta');
+  const macrozona = getFieldValue('f_macrozona');
+  const microzona = getFieldValue('f_microzona');
+  const data = getFieldValue('f_data');
+  const ciclo = getFieldValue('f_ciclo');
+
+  const mqMilano = getNumberValue('f_mq_milano');
+  const mqMacro = getNumberValue('f_mq_macro');
+  const mqMicro = getNumberValue('f_mq_micro');
+  const mqBp = getNumberValue('f_mq_bp');
+  const mqCv = getNumberValue('f_mq_cv');
+
+  const cantieri = getCantieriData();
+  const ipotesi = getIpotesiData();
+  const takeaway = [getFieldValue('tw1'), getFieldValue('tw2'), getFieldValue('tw3')].filter(Boolean);
+  const decision = getFieldValue('d_esito');
+  const decisionReason = getFieldValue('d_reason');
+
+  let score = 0;
+  const warnings = [];
+
+  const baseFields = [indirizzo, citta, macrozona, microzona, data, ciclo].filter(Boolean).length;
+  score += Math.round((baseFields / 6) * 28);
+  if (baseFields < 6) warnings.push('Completa i dati generali per migliorare la consistenza.');
+
+  const pricingFields = [mqMilano, mqMacro, mqMicro, mqBp, mqCv].filter((v) => v > 0).length;
+  score += Math.round((pricingFields / 5) * 24);
+  if (pricingFields < 4) warnings.push('Inserisci piu valori prezzo per un benchmark affidabile.');
+
+  const fullCantieri = cantieri.filter((item) => item.addr && item.mq > 0).length;
+  score += Math.min(22, fullCantieri * 6);
+  if (fullCantieri < 3) warnings.push('Servono almeno 3 cantieri completi (indirizzo + €/mq).');
+
+  const fullIpotesi = ipotesi.filter((item) => item.title && item.body).length;
+  score += Math.min(14, fullIpotesi * 4);
+  if (fullIpotesi < 4) warnings.push('Definisci 4 ipotesi complete per confronto decisionale.');
+
+  score += takeaway.length >= 2 ? 7 : takeaway.length * 3;
+  if (takeaway.length < 2) warnings.push('Aggiungi almeno 2 takeaway concreti.');
+
+  if (decision && decisionReason) score += 5;
+  else warnings.push('Compila la decisione operativa finale.');
+
+  const state = score >= 85 ? 'Pronta' : score >= 65 ? 'Quasi pronta' : 'Da completare';
+  return { score: Math.min(100, score), warnings, state };
+}
+
+function updateQualityUI() {
+  const report = computeQualityReport();
+  const scoreNode = document.getElementById('quality-score');
+  const fillNode = document.getElementById('quality-bar-fill');
+  const stateNode = document.getElementById('quality-state');
+  if (scoreNode) scoreNode.textContent = `${report.score}/100`;
+  if (fillNode) fillNode.style.width = `${report.score}%`;
+  if (stateNode) stateNode.textContent = report.state;
+
+  const validationBox = document.getElementById('validation-errors');
+  if (!validationBox) return;
+  if (!report.warnings.length) {
+    validationBox.classList.remove('show');
+    validationBox.innerHTML = '';
+    return;
+  }
+  validationBox.classList.add('show');
+  validationBox.innerHTML = `<strong>Controlli veloci</strong><ul>${report.warnings.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
+}
+
+function validateBeforeGenerate() {
+  const errors = [];
+  const indirizzo = getFieldValue('f_indirizzo');
+  const citta = getFieldValue('f_citta');
+  const mqBp = getNumberValue('f_mq_bp');
+  const mqMicro = getNumberValue('f_mq_micro');
+  const scarto = getNumberValue('f_scarto');
+  const cantieri = getCantieriData();
+  const ipotesi = getIpotesiData();
+  const decision = getFieldValue('d_esito');
+  const decisionConf = getNumberValue('d_conf');
+
+  if (!indirizzo || !citta) errors.push('Compila indirizzo progetto e citta.');
+  if (mqBp <= 0 || mqMicro <= 0) errors.push('Inserisci almeno €/mq nostro BP e €/mq micro-zona.');
+  if (cantieri.length < 2) errors.push('Inserisci almeno 2 cantieri comparabili.');
+  if (cantieri.some((item) => !item.addr || item.mq <= 0)) errors.push('Ogni cantiere deve avere indirizzo completo e €/mq.');
+  if (ipotesi.filter((item) => item.title && item.body).length < 2) errors.push('Servono almeno 2 ipotesi complete per generare il documento.');
+  if (decision === 'GO' && decisionConf > 0 && decisionConf < 55) errors.push('Decisione GO incoerente con confidenza sotto 55%.');
+  if (scarto > 5) errors.push('Scarto asking/closing positivo oltre 5%: verifica il dato.');
+
+  return errors;
+}
+
+function applySmartSuggestions() {
+  const ciclo = getFieldValue('f_ciclo');
+  const micro = getFieldValue('f_microzona') || 'micro-zona';
+  const mqBp = getNumberValue('f_mq_bp');
+  const mqMicro = getNumberValue('f_mq_micro');
+
+  if (!getFieldValue('m1_title')) {
+    const titleByCycle = ciclo === 'Crescita' ? 'Mercato in accelerazione' : ciclo === 'Contrazione' ? 'Mercato selettivo' : 'Mercato bilanciato';
+    document.getElementById('m1_title').value = titleByCycle;
+  }
+  if (!getFieldValue('m1_body')) {
+    document.getElementById('m1_body').value = `Focus su ${micro}: domanda attiva ma sensibile a prezzo e qualita prodotto.`;
+  }
+  if (!getFieldValue('tw1')) {
+    document.getElementById('tw1').value = `Concentrare l'offerta su tagli ad alta assorbibilita in ${micro}.`;
+  }
+  if (!getFieldValue('tw2') && mqBp && mqMicro) {
+    const delta = ((mqBp / mqMicro) - 1) * 100;
+    document.getElementById('tw2').value = `Posizionamento target ${delta >= 0 ? '+' : ''}${delta.toFixed(1)}% vs media micro-zona con narrativa premium chiara.`;
+  }
+  if (!getFieldValue('val_timeline')) {
+    document.getElementById('val_timeline').value = 'Avvio pre-selling con checkpoint lead ogni 14 giorni e revisione prezzo al giorno 75.';
+  }
+  if (!getFieldValue('d_esito')) {
+    document.getElementById('d_esito').value = 'GO condizionato';
+  }
+  if (!getFieldValue('d_reason')) {
+    document.getElementById('d_reason').value = 'Benchmark competitivo favorevole ma da validare su velocita assorbimento reale.';
+  }
+  if (!getFieldValue('d_next')) {
+    document.getElementById('d_next').value = 'Attivare test commerciale su 2 configurazioni e monitorare conversione per 30 giorni.';
+  }
+
+  persistFormState();
+  updateQualityUI();
+  renderLivePanel();
+}
+
+function renderLivePanel() {
+  const report = computeQualityReport();
+  const address = [getFieldValue('f_indirizzo'), getFieldValue('f_citta')].filter(Boolean).join(', ');
+  const cantieri = getCantieriData();
+  const ranked = buildRankedCantieri(cantieri, getNumberValue('f_mq_bp'));
+  const decision = getFieldValue('d_esito') || 'Da definire';
+
+  const liveName = document.getElementById('live-project-name');
+  const liveQuality = document.getElementById('live-quality');
+  const liveWarnings = document.getElementById('live-warnings');
+  const liveSummary = document.getElementById('live-summary');
+
+  if (liveName) liveName.textContent = getActiveArchiveItem()?.name || 'Nuova scheda';
+  if (liveQuality) liveQuality.textContent = `QUALITA ${report.score}/100`;
+  if (liveWarnings) {
+    liveWarnings.innerHTML = report.warnings.length
+      ? report.warnings.slice(0, 3).map((item) => `• ${escapeHtml(item)}`).join('<br>')
+      : 'Tutti i controlli principali sono in linea.';
+  }
+  if (liveSummary) {
+    const top = ranked.slice(0, 3).map((item, index) => `${index + 1}. ${(item.nome || 'Comparabile')} (${Math.round(item.rankScore)}/100)`).join('<br>');
+    liveSummary.innerHTML = `
+      <strong>${escapeHtml(address || 'Inserisci indirizzo e citta')}</strong>
+      Decisione: <strong>${escapeHtml(decision)}</strong><br>
+      Cantieri completi: <strong>${ranked.filter((item) => item.addr && item.mq > 0).length}</strong><br>
+      Top ranking:<br>${top || 'Nessun cantiere ancora valutato'}
+    `;
+  }
+}
+
+function getDecisionHtml() {
+  const decision = getFieldValue('d_esito');
+  const confidence = getFieldValue('d_conf');
+  const horizon = getFieldValue('d_when');
+  const reason = getFieldValue('d_reason');
+  const next = getFieldValue('d_next');
+  const decisionClass = normalizeDecisionClass(decision);
+
+  return `
+    <div class="decision-grid">
+      <div class="decision-box">
+        <div class="decision-main">
+          <span class="decision-label">Decisione</span>
+          <span class="decision-value ${decisionClass}">${escapeHtml(decision || 'Da definire')}</span>
+          <span class="decision-conf">Conf. ${escapeHtml(confidence || '—')}%</span>
+        </div>
+        <div class="decision-body">${reason ? escapeHtml(reason) : '<span class="slot">Motivazione da compilare</span>'}</div>
+      </div>
+      <div class="decision-box">
+        <div class="decision-main">
+          <span class="decision-label">Prossimo step</span>
+          <span class="decision-conf">Orizzonte ${escapeHtml(horizon || '—')}</span>
+        </div>
+        <div class="decision-body">${next ? escapeHtml(next) : '<span class="slot">Azione successiva da compilare</span>'}</div>
+      </div>
+    </div>
+  `;
+}
+
 async function generateDoc() {
+  const hardErrors = validateBeforeGenerate();
+  if (hardErrors.length) {
+    const validationBox = document.getElementById('validation-errors');
+    if (validationBox) {
+      validationBox.classList.add('show');
+      validationBox.innerHTML = `<strong>Blocco generazione</strong><ul>${hardErrors.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
+    }
+    updateQualityUI();
+    window.scrollTo(0, 0);
+    return;
+  }
+
   const indirizzo = getFieldValue('f_indirizzo');
   const citta = getFieldValue('f_citta');
   const macrozona = getFieldValue('f_macrozona');
@@ -452,14 +859,18 @@ async function generateDoc() {
     body: getFieldValue(`m${i}_body`)
   }));
   const cantieri = getCantieriData();
+  const rankedCantieri = buildRankedCantieri(cantieri, mqBp);
   const ipotesi = getIpotesiData();
   const takeaway = [getFieldValue('tw1'), getFieldValue('tw2'), getFieldValue('tw3')].filter(Boolean);
   const valTimeline = getFieldValue('val_timeline');
   const valTest = getFieldValue('val_test');
   const premiumText = buildPremiumText(mqBp, mqMicro, premio, deprezzo);
-  const competitorMetrics = generateCompetitorMetrics(cantieri, mqBp);
+  const competitorMetrics = generateCompetitorMetrics(rankedCantieri, mqBp);
   const projectAddress = [indirizzo, citta].filter(Boolean).join(', ');
-  const mapPoints = await resolveMapPoints(projectAddress, cantieri);
+  const mapPoints = await resolveMapPoints(projectAddress, rankedCantieri);
+  const covered = mapPoints.filter((point) => point.kind === 'comp' && hasCoords(point)).length;
+  const totalComparableMap = rankedCantieri.filter((item) => item.addr).slice(0, 8).length;
+
   const metricHtml = metrics.map((metric) => `
     <div class="mc ${metric.color === 'neutral' ? '' : escapeHtml(metric.color)}">
       <div class="mc-label">${escapeHtml(metric.label)}</div>
@@ -467,31 +878,35 @@ async function generateDoc() {
       <div class="mc-body">${escapeHtml(metric.body)}</div>
     </div>
   `).join('');
-  const useLeafletMap = canRenderFullLeafletMap(mapPoints, cantieri);
+
+  const useLeafletMap = canRenderFullLeafletMap(mapPoints, rankedCantieri);
   const mapVisual = useLeafletMap
     ? '<div id="leaflet-map" class="leaflet-map" aria-label="Mappa progetto e comparabili"></div>'
-    : buildFallbackMapHtml(cantieri);
+    : buildFallbackMapHtml(rankedCantieri);
+
   const mapHtml = `
     <div class="map-layout">
       <div id="map-container">${mapVisual}</div>
       <div class="map-side">
         <div class="map-side-panel">
-          <div class="map-legend-title">Legenda</div>
+          <div class="map-legend-title">Legenda e ranking</div>
           <div class="legend-item"><span class="legend-pin project">P</span>Progetto in analisi</div>
-          ${cantieri.filter((c) => c.addr).slice(0, 8).map((c, index) => `<div class="legend-item"><span class="legend-pin comp">${index + 1}</span>${escapeHtml(c.nome || 'Comparabile')} · ${escapeHtml(c.zona || 'zona n.d.')}</div>`).join('') || '<div class="legend-item">Aggiungi un indirizzo completo per visualizzarlo</div>'}
+          ${rankedCantieri.filter((c) => c.addr).slice(0, 8).map((c, index) => `<div class="legend-item"><span class="legend-pin comp">${index + 1}</span>${escapeHtml(c.nome || 'Comparabile')} · score ${Math.round(c.rankScore)}</div>`).join('') || '<div class="legend-item">Aggiungi un indirizzo completo per visualizzarlo</div>'}
         </div>
         <div class="map-side-panel">
           <div class="map-legend-title">Insight rapidi</div>
           <div class="insight-item">Prezzo medio comparabili: <strong>${formatNumber(competitorMetrics.avgPrice)}</strong> €/mq</div>
           <div class="insight-item">Range osservato: <strong>${formatNumber(competitorMetrics.minPrice)}</strong> - <strong>${formatNumber(competitorMetrics.maxPrice)}</strong> €/mq</div>
+          <div class="insight-item">Copertura geocode: <strong>${covered}/${totalComparableMap}</strong></div>
           <div class="insight-item">BP progetto vs media competitor: <strong>${competitorMetrics.avgPrice && mqBp ? `${competitorMetrics.deltaVsComp > 0 ? '+' : ''}${competitorMetrics.deltaVsComp.toFixed(1)}%` : 'n.d.'}</strong></div>
         </div>
       </div>
     </div>
   `;
-  const cantieriRows = cantieri.length ? cantieri.map((c) => `
+
+  const cantieriRows = rankedCantieri.length ? rankedCantieri.map((c, index) => `
       <tr>
-        <td><strong>${escapeHtml(c.nome || '—')}</strong></td>
+        <td><strong>#${index + 1} ${escapeHtml(c.nome || '—')}</strong></td>
         <td>${escapeHtml(c.addr || '—')}</td>
         <td>${escapeHtml(c.zona || '—')}</td>
         <td style="text-align:center; font-family:var(--mono);">${escapeHtml(c.unita || '—')}</td>
@@ -504,6 +919,7 @@ async function generateDoc() {
         <td>${statusBadge(c.stato)}</td>
       </tr>
     `).join('') : '<tr><td colspan="11" style="text-align:center; color:var(--muted); padding:8px; font-style:italic;">Nessun cantiere inserito</td></tr>';
+
   const ipotesiHtml = ipotesi.length ? ipotesi.map((ip) => `
       <div class="ip">
         <div class="ip-num">Ipotesi 0${ip.num}</div>
@@ -512,8 +928,14 @@ async function generateDoc() {
         ${ip.price ? `<div class="ip-price">${escapeHtml(ip.price)}</div>` : ''}
       </div>
     `).join('') : '<div class="ip" style="grid-column:1/-1; text-align:center; color:var(--muted); font-style:italic; font-size:7pt;">Nessuna ipotesi inserita</div>';
+
   const takeawayHtml = takeaway.length ? takeaway.map((item) => `<div class="tw-item"><span class="tw-arrow">→</span><span class="tw-text">${escapeHtml(item)}</span></div>`).join('') : '<div class="tw-item"><span class="tw-arrow">→</span><span class="tw-text" style="opacity:.5; font-style:italic;">Inserisci i takeaway nel form</span></div>';
   const cicloColor = ciclo === 'Crescita' ? 'badge-green' : ciclo === 'Contrazione' ? 'badge-red' : 'badge-amber';
+
+  const textLoad = [premio, deprezzo, valTimeline, valTest, getFieldValue('d_reason'), getFieldValue('d_next'), ...takeaway].join(' ').length;
+  const densityClass = getDensityClass(rankedCantieri.length, ipotesi.length, textLoad);
+
+  document.getElementById('doc-page').className = `page ${densityClass}`;
   document.getElementById('doc-page').innerHTML = `
     <div class="doc-header">
       <div>
@@ -530,7 +952,7 @@ async function generateDoc() {
     <div class="doc-section">
       <div class="doc-section-label">01 · Analisi di Mercato — Posizionamento €/mq</div>
       <div class="price-bar">
-        <div class="ps"><div class="ps-label">€/mq Milano</div><div class="ps-val">${formatNumber(mqMilano)}</div><div class="ps-sub">Riferimento città</div></div>
+        <div class="ps"><div class="ps-label">€/mq Milano</div><div class="ps-val">${formatNumber(mqMilano)}</div><div class="ps-sub">Riferimento citta</div></div>
         <div class="ps"><div class="ps-label">€/mq Macro-zona</div><div class="ps-val">${formatNumber(mqMacro)}</div><div class="ps-sub">${escapeHtml(macrozona || '—')}</div></div>
         <div class="ps"><div class="ps-label">€/mq Micro-zona</div><div class="ps-val">${formatNumber(mqMicro)}</div><div class="ps-sub">${escapeHtml(microzona || '—')}</div></div>
         <div class="ps accent"><div class="ps-label">€/mq Nostro BP</div><div class="ps-val">${formatNumber(mqBp)}</div><div class="ps-sub">Target di progetto</div></div>
@@ -577,17 +999,25 @@ async function generateDoc() {
         <div class="val-box"><div class="val-label">Test di validazione layout</div><div class="val-body">${valTest ? escapeHtml(valTest) : '<span class="slot">Da compilare</span>'}</div></div>
       </div>
     </div>
+    <div class="doc-section">
+      <div class="doc-section-label">06 · Decisione Operativa</div>
+      ${getDecisionHtml()}
+    </div>
     <div class="doc-footer">
       <span>${escapeHtml(indirizzo || '—')} · ${escapeHtml(microzona || '—')} · ${escapeHtml(macrozona || '—')}</span>
       <span>Benchmark cantieri comparabili</span>
       <span>Confidenziale — uso interno</span>
     </div>
   `;
+
   document.getElementById('input-panel').style.display = 'none';
+  document.getElementById('live-panel').style.display = 'none';
   document.getElementById('doc-output').style.display = 'block';
+
   if (useLeafletMap) {
     renderLeafletMap(mapPoints);
   }
+
   persistFormState();
   window.scrollTo(0, 0);
 }
@@ -595,17 +1025,61 @@ async function generateDoc() {
 function backToInput() {
   document.getElementById('doc-output').style.display = 'none';
   document.getElementById('input-panel').style.display = 'block';
+  document.getElementById('live-panel').style.display = 'block';
+  updateQualityUI();
+  renderLivePanel();
   window.scrollTo(0, 0);
+}
+
+function scheduleRefresh() {
+  updateQualityUI();
+  renderLivePanel();
 }
 
 function initAutosave() {
   document.addEventListener('input', (event) => {
-    if (event.target.closest('#input-panel')) persistFormState();
+    if (!event.target.closest('#input-panel')) return;
+    if (event.target.classList.contains('c_addr')) {
+      const row = event.target.closest('tr');
+      updateGeoStatusForAddress(row, event.target.value);
+    }
+    persistFormState();
+    scheduleRefresh();
   });
+
   document.addEventListener('change', (event) => {
-    if (event.target.closest('#input-panel')) persistFormState();
+    if (!event.target.closest('#input-panel')) return;
+    persistFormState();
+    scheduleRefresh();
   });
+
+  const archiveSelect = document.getElementById('archive-select');
+  if (archiveSelect) {
+    archiveSelect.addEventListener('change', (event) => {
+      const nextId = event.target.value;
+      loadProjectById(nextId);
+    });
+  }
 }
 
+window.verifyCantiereRow = verifyCantiereRow;
+window.addCantiere = addCantiere;
+window.removeCantiere = removeCantiere;
+window.addIpotesi = addIpotesi;
+window.removeIpotesi = removeIpotesi;
+window.generateDoc = generateDoc;
+window.backToInput = backToInput;
+window.createNewProject = createNewProject;
+window.saveCurrentProject = saveCurrentProject;
+window.duplicateProject = duplicateProject;
+window.deleteCurrentProject = deleteCurrentProject;
+window.applySmartSuggestions = applySmartSuggestions;
+
+loadArchive();
 initAutosave();
-if (!restoreFormState()) seedDefaultRows();
+if (!restoreActiveState()) {
+  seedDefaultRows();
+  saveCurrentProject();
+}
+updateQualityUI();
+renderLivePanel();
