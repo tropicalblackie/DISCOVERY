@@ -950,7 +950,7 @@ async function generateDoc() {
       </div>
     </div>
     <div class="doc-section">
-      <div class="doc-section-label">01 · Analisi di Mercato — Posizionamento €/mq</div>
+      <div class="doc-section-label">Mercato</div>
       <div class="price-bar">
         <div class="ps"><div class="ps-label">€/mq Milano</div><div class="ps-val">${formatNumber(mqMilano)}</div><div class="ps-sub">Riferimento citta</div></div>
         <div class="ps"><div class="ps-label">€/mq Macro-zona</div><div class="ps-val">${formatNumber(mqMacro)}</div><div class="ps-sub">${escapeHtml(macrozona || '—')}</div></div>
@@ -961,11 +961,11 @@ async function generateDoc() {
       ${premiumText ? `<div class="premium-note"><strong>Premio / Deprezzamento:</strong> ${premiumText}</div>` : ''}
     </div>
     <div class="doc-section">
-      <div class="doc-section-label">02 · Le 7 Metriche Chiave</div>
+      <div class="doc-section-label">Metriche</div>
       <div class="metriche-grid">${metricHtml}</div>
     </div>
     <div class="doc-section">
-      <div class="doc-section-label">03 · Cantieri Limitrofi — Contesto Competitivo</div>
+      <div class="doc-section-label">Cantieri</div>
       ${metricKpiHtml(competitorMetrics, mqBp)}
       ${mapHtml}
       <table class="comp-table">
@@ -988,11 +988,11 @@ async function generateDoc() {
       </table>
     </div>
     <div class="doc-section">
-      <div class="doc-section-label">04 · Ipotesi di Sviluppo Data-Driven</div>
+      <div class="doc-section-label">Ipotesi</div>
       <div class="ipotesi-grid">${ipotesiHtml}</div>
     </div>
     <div class="doc-section">
-      <div class="doc-section-label">05 · Takeaway Strategici e Test di Validazione</div>
+      <div class="doc-section-label">Takeaway</div>
       <div class="takeaway">${takeawayHtml}</div>
       <div class="val-grid">
         <div class="val-box"><div class="val-label">Timeline commercializzazione</div><div class="val-body">${valTimeline ? escapeHtml(valTimeline) : '<span class="slot">Da compilare</span>'}</div></div>
@@ -1000,7 +1000,7 @@ async function generateDoc() {
       </div>
     </div>
     <div class="doc-section">
-      <div class="doc-section-label">06 · Decisione Operativa</div>
+      <div class="doc-section-label">Decisione</div>
       ${getDecisionHtml()}
     </div>
     <div class="doc-footer">

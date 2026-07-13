@@ -5,6 +5,22 @@
   --line-strong: #c7c7cc;
   --accent: #0071e3;
   --accent-strong: #0058b0;
+.doc-eyebrow,
+.doc-section-label,
+.ps .ps-label,
+.sub-stat-label,
+.metric-kpi-label,
+.map-legend-title,
+.val-label,
+.decision-label {
+  display: none;
+}
+.metric-kpi-value {
+  margin-top: 0;
+}
+.decision-main {
+  margin-bottom: 2px;
+}
   --accent-bg: rgba(0, 113, 227, 0.1);
   --positive: #2d8a57;
   --positive-bg: rgba(45, 138, 87, 0.12);
