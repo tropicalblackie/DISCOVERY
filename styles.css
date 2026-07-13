@@ -3,25 +3,11 @@
   --muted: #6e6e73;
   --line: #d2d2d7;
   --line-strong: #c7c7cc;
-  --accent: #0071e3;
-  --accent-strong: #0058b0;
-.doc-eyebrow,
-.doc-section-label,
-.ps .ps-label,
-.sub-stat-label,
-.metric-kpi-label,
-.map-legend-title,
-.val-label,
-.decision-label {
-  display: none;
-}
-.metric-kpi-value {
-  margin-top: 0;
-}
-.decision-main {
-  margin-bottom: 2px;
-}
-  --accent-bg: rgba(0, 113, 227, 0.1);
+  --accent: #6b3fa0;
+  --accent-strong: #552f82;
+  --accent-soft: #8b63bc;
+  --accent-rgb: 107, 63, 160;
+  --accent-bg: rgba(var(--accent-rgb), 0.12);
   --positive: #2d8a57;
   --positive-bg: rgba(45, 138, 87, 0.12);
   --warning-text: #b26b00;
@@ -36,6 +22,25 @@
   --radius-tight: 14px;
   --mono: "SFMono-Regular", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
+}
+
+.doc-eyebrow,
+.doc-section-label,
+.ps .ps-label,
+.sub-stat-label,
+.metric-kpi-label,
+.map-legend-title,
+.val-label,
+.decision-label {
+  display: none;
+}
+
+.metric-kpi-value {
+  margin-top: 0;
+}
+
+.decision-main {
+  margin-bottom: 2px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -133,7 +138,7 @@ body {
   height: 100%;
   width: 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, #ff9f0a, #0071e3 66%, #2d8a57);
+  background: linear-gradient(90deg, #ff9f0a, var(--accent) 66%, #2d8a57);
   transition: width 0.2s ease;
 }
 #quality-state {
@@ -238,8 +243,8 @@ h1 {
 .field select:focus,
 .field textarea:focus,
 #cantieri-table td input:focus {
-  border-color: rgba(0, 113, 227, 0.58);
-  box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12);
+  border-color: rgba(var(--accent-rgb), 0.58);
+  box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.14);
   background: var(--white);
   transform: translateY(-1px);
 }
@@ -323,17 +328,17 @@ h1 {
 }
 .btn:hover {
   background: var(--white);
-  border-color: rgba(0, 113, 227, 0.2);
+  border-color: rgba(var(--accent-rgb), 0.25);
   box-shadow: 0 12px 30px rgba(17, 18, 20, 0.08);
   transform: translateY(-1px) scale(1.01);
 }
 .btn-accent {
-  background: linear-gradient(180deg, #1593ff 0, var(--accent) 100%);
+  background: linear-gradient(180deg, var(--accent-soft) 0, var(--accent) 100%);
   color: var(--white);
   border-color: transparent;
-  box-shadow: 0 18px 34px rgba(0, 113, 227, 0.24);
+  box-shadow: 0 18px 34px rgba(var(--accent-rgb), 0.3);
 }
-.btn-accent:hover { background: linear-gradient(180deg, #1c9aff 0, #0067d1 100%); }
+.btn-accent:hover { background: linear-gradient(180deg, #9a73ca 0, var(--accent-strong) 100%); }
 .btn-small { padding: 7px 12px; font-size: 10px; }
 .btn-danger { border-color: rgba(184, 74, 46, 0.62); color: var(--accent); }
 .actions-bar {
@@ -565,7 +570,7 @@ h1 {
   border-radius: 18px;
   overflow: hidden;
   position: relative;
-  background: linear-gradient(180deg, #eef4fb, #e6edf7);
+  background: linear-gradient(180deg, #f2ecfb, #ebe3f7);
 }
 .leaflet-map {
   width: 100%;
@@ -586,10 +591,10 @@ h1 {
   height: 100%;
   position: relative;
   background:
-    radial-gradient(circle at top left, rgba(0,113,227,0.14), transparent 42%),
+    radial-gradient(circle at top left, rgba(var(--accent-rgb), 0.16), transparent 42%),
     linear-gradient(rgba(255,255,255,0.56), rgba(255,255,255,0.56)),
-    linear-gradient(90deg, rgba(0,113,227,0.08) 1px, transparent 1px),
-    linear-gradient(rgba(0,113,227,0.08) 1px, transparent 1px);
+    linear-gradient(90deg, rgba(var(--accent-rgb), 0.09) 1px, transparent 1px),
+    linear-gradient(rgba(var(--accent-rgb), 0.09) 1px, transparent 1px);
   background-size: auto, 34px 34px, 34px 34px;
 }
 .map-fallback-badge {
@@ -621,7 +626,7 @@ h1 {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
 }
 .map-dot.project { background: linear-gradient(180deg, #38c977, #2d8a57); }
-.map-dot.comp { background: linear-gradient(180deg, #1994ff, #0071e3); }
+.map-dot.comp { background: linear-gradient(180deg, var(--accent-soft), var(--accent)); }
 .map-dot-label {
   position: absolute;
   margin-top: 22px;

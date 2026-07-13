@@ -123,7 +123,7 @@ function renderLeafletMap(points) {
           radius: 7,
           weight: 3,
           color: '#ffffff',
-          fillColor: '#0071e3',
+          fillColor: '#6b3fa0',
           fillOpacity: 1
         });
     marker.bindTooltip(`${point.label} · ${point.name}`, { direction: 'top', opacity: 0.92, sticky: true });
