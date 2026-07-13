@@ -1,0 +1,36 @@
+{
+  "name": "discovery",
+  "version": "1.0.0",
+  "description": "Discovery - strategic real estate one-page analysis tool",
+  "main": "app.js",
+  "scripts": {
+    "dev": "serve . -l 4173",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report",
+    "quality:check": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tropicalblackie/DISCOVERY.git"
+  },
+  "keywords": [
+    "discovery",
+    "real-estate",
+    "analysis",
+    "a4",
+    "tool"
+  ],
+  "author": "Discovery Team",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/tropicalblackie/DISCOVERY/issues"
+  },
+  "homepage": "https://github.com/tropicalblackie/DISCOVERY#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "serve": "^14.2.6"
+  }
+}
