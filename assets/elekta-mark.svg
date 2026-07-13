@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="159" height="46" viewBox="0 0 159 46" role="img" aria-label="elekta">
+  <rect width="159" height="46" fill="#ffffff"/>
+  <g fill="#2d2a2c">
+    <path d="M5 9h27v8H14v5h14v7H14v7h18v8H5z"/>
+    <rect x="38" y="4" width="8" height="40" rx="1"/>
+    <path d="M51 9h27v8H60v5h14v7H60v7h18v8H51z"/>
+    <rect x="84" y="4" width="8" height="40" rx="1"/>
+    <polygon points="92,24 108,9 119,9 101,26 120,44 109,44"/>
+    <rect x="116" y="4" width="8" height="40" rx="1"/>
+    <rect x="111" y="9" width="19" height="8" rx="1"/>
+    <polygon points="126,26 142,9 153,9 135,26 154,44 143,44"/>
+    <rect x="148" y="4" width="8" height="40" rx="1"/>
+    <path d="M129 36h17v-7h-13v-20h22v35h-8v-3h-18z"/>
+  </g>
+</svg>
