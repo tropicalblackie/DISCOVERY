@@ -90,21 +90,6 @@ body.app-loading #doc-output {
   line-height: 0.94;
   color: #ffffff;
 }
-.launch-logo-wrap {
-  margin-top: 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 10px;
-  background: #ffffff;
-  border-radius: 4px;
-  box-shadow: 0 16px 40px rgba(27, 19, 38, 0.18);
-}
-.launch-logo {
-  display: block;
-  width: 159px;
-  height: auto;
-}
 @keyframes launchPop {
   0% { transform: translateY(10px) scale(0.985); opacity: 0; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
