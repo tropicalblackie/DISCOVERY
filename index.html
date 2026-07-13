@@ -13,25 +13,15 @@
 <div id="input-panel">
   <div class="app-intro">
     <div>
-      <p class="eyebrow">Discovery Strategica</p>
-      <h1>Template operativo per schede A4</h1>
-      <p class="subtitle">Compila, salva, importa o esporta i dati. Il documento A4 resta pulito, più leggibile e pronto da stampare.</p>
-    </div>
-    <div class="intro-side">
-      <span class="status-pill">Autosave locale attivo</span>
-      <span class="status-pill">GitHub Pages online</span>
+      <h1>Template operativo</h1>
     </div>
   </div>
 
   <div class="input-section section-accent">
     <div class="section-toolbar">
-      <div>
-        <h3>Gestione scheda</h3>
-        <p class="section-note">Riusa schede esistenti o scarica un JSON completo con tutti i campi.</p>
-      </div>
       <div class="actions-bar compact-actions">
-        <button class="btn" type="button" id="export-json-btn">Esporta JSON</button>
-        <button class="btn" type="button" id="import-json-btn">Importa JSON</button>
+        <button class="btn" type="button" id="export-json-btn">Esporta dati</button>
+        <button class="btn" type="button" id="import-json-btn">Carica dati</button>
         <input type="file" id="import-json-input" accept="application/json" hidden>
         <button class="btn" type="button" onclick="resetAllData()">Reset dati</button>
       </div>
@@ -39,7 +29,7 @@
   </div>
 
   <div class="input-section">
-    <h3>Dati Generali (da ONBILD)</h3>
+    <h3>Dati generali</h3>
     <div class="form-grid">
       <div class="field"><label>Indirizzo progetto</label><input type="text" id="f_indirizzo" placeholder="Es. Via Labus, 1"></div>
       <div class="field"><label>Città</label><input type="text" id="f_citta" placeholder="Milano"></div>
@@ -59,7 +49,7 @@
   </div>
 
   <div class="input-section">
-    <h3>Prezzi annunci (tab "Prezzi annunci" ONBILD)</h3>
+    <h3>Prezzi annunci</h3>
     <div class="form-grid four">
       <div class="field"><label>€/mq Milano generale</label><input type="number" id="f_mq_milano" placeholder="Es. 5100"></div>
       <div class="field"><label>€/mq Macro-zona</label><input type="number" id="f_mq_macro" placeholder="Es. 4400"></div>
@@ -79,7 +69,7 @@
   </div>
 
   <div class="input-section">
-    <h3>Le 7 metriche (da ONBILD — Sintesi + tab singoli)</h3>
+    <h3>Le 7 metriche</h3>
     <div class="form-grid three">
       <div class="field"><label>Rating mercato — titolo sintetico</label><input type="text" id="m1_title" placeholder="Es. B/C — Mercato in maturazione"></div>
       <div class="field"><label>Rating mercato — colore</label><select id="m1_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select></div>
@@ -109,13 +99,12 @@
     <div class="section-toolbar">
       <div>
         <h3>Cantieri limitrofi — Comparativi</h3>
-        <p class="section-note">La preview A4 usa una mappa statica stampabile, con legenda e confronto prezzi più leggibile.</p>
       </div>
     </div>
     <div class="field field-wide field-soft">
-      <label>Google Maps API Key</label>
-      <input type="text" id="f_apikey" placeholder="Incolla qui la tua API Key">
-      <p class="api-note">Senza key la mappa mostra un placeholder. Con la key la pagina genera una mappa statica adatta anche alla stampa PDF.</p>
+      <label>Chiave mappa</label>
+      <input type="text" id="f_apikey" placeholder="Incolla qui la chiave mappa">
+      <p class="api-note">Se la inserisci, la mappa usa il posizionamento reale. Se manca, vedi comunque una vista schematica.</p>
     </div>
     <div style="overflow-x:auto;">
       <table id="cantieri-table">
@@ -146,7 +135,6 @@
     <div class="section-toolbar">
       <div>
         <h3>Le 4 ipotesi di sviluppo</h3>
-        <p class="section-note">Le card in output sono più compatte e uniformi per la stampa A4.</p>
       </div>
       <button class="btn btn-small" type="button" onclick="addIpotesi()">+ Aggiungi ipotesi</button>
     </div>
@@ -169,7 +157,6 @@
   <div class="actions-bar primary-actions">
     <button class="btn btn-accent" type="button" onclick="generateDoc()">Genera documento A4</button>
     <button class="btn" type="button" onclick="window.print()">Stampa / Esporta PDF</button>
-    <span class="autosave-note">I dati vengono salvati automaticamente in locale.</span>
   </div>
 </div>
 

@@ -84,6 +84,44 @@ function buildStaticMapUrl(cantieriData) {
   return `https://maps.googleapis.com/maps/api/staticmap?size=1200x720&scale=2&maptype=roadmap&zoom=14&center=${projectAddr}&${projectMarker}&${markers}&key=${encodeURIComponent(apiKey)}`;
 }
 
+function buildFallbackMapHtml(cantieriData) {
+  const projectName = getFieldValue('f_indirizzo') || 'Progetto';
+  const nodes = [{ label: 'P', name: projectName, className: 'project', left: 48, top: 50 }];
+  const positions = [
+    { left: 24, top: 24 },
+    { left: 72, top: 26 },
+    { left: 18, top: 68 },
+    { left: 78, top: 62 },
+    { left: 38, top: 18 },
+    { left: 60, top: 74 },
+    { left: 12, top: 46 },
+    { left: 84, top: 42 }
+  ];
+
+  cantieriData.slice(0, 8).forEach((cantiere, index) => {
+    const pos = positions[index];
+    nodes.push({
+      label: String(index + 1),
+      name: cantiere.nome || cantiere.addr || `Comparabile ${index + 1}`,
+      className: 'comp',
+      left: pos.left,
+      top: pos.top
+    });
+  });
+
+  return `
+    <div class="map-fallback">
+      <div class="map-fallback-badge">Vista schematica</div>
+      ${nodes.map((node) => `
+        <div class="map-dot ${node.className}" style="left: calc(${node.left}% - 9px); top: calc(${node.top}% - 9px);">
+          ${escapeHtml(node.label)}
+          <div class="map-dot-label">${escapeHtml(node.name)}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
 function addCantiere(data = {}) {
   cantiereCount += 1;
   const rowId = 'cantiere_' + cantiereCount;
@@ -312,14 +350,17 @@ function generateDoc() {
       <div class="mc-body">${escapeHtml(metric.body)}</div>
     </div>
   `).join('');
+  const mapVisual = staticMapUrl
+    ? `<img class="map-static" src="${staticMapUrl}" alt="Mappa comparabili e progetto">`
+    : buildFallbackMapHtml(cantieri);
   const mapHtml = `
     <div class="map-layout">
-      <div id="map-container">${staticMapUrl ? `<img class="map-static" src="${staticMapUrl}" alt="Mappa comparabili e progetto">` : '<div class="map-placeholder">Inserisci la Google Maps API Key per generare una mappa statica stampabile con il progetto e i comparabili.</div>'}</div>
+      <div id="map-container">${mapVisual}</div>
       <div class="map-side">
         <div class="map-side-panel">
           <div class="map-legend-title">Legenda</div>
           <div class="legend-item"><span class="legend-pin project">P</span>Progetto in analisi</div>
-          ${cantieri.filter((c) => c.addr).slice(0, 8).map((c, index) => `<div class="legend-item"><span class="legend-pin comp">${index + 1}</span>${escapeHtml(c.nome || 'Comparabile')} · ${escapeHtml(c.zona || 'zona n.d.')}</div>`).join('') || '<div class="legend-item">Nessun comparabile geolocalizzabile</div>'}
+          ${cantieri.filter((c) => c.addr).slice(0, 8).map((c, index) => `<div class="legend-item"><span class="legend-pin comp">${index + 1}</span>${escapeHtml(c.nome || 'Comparabile')} · ${escapeHtml(c.zona || 'zona n.d.')}</div>`).join('') || '<div class="legend-item">Aggiungi un indirizzo per posizionarlo sulla mappa</div>'}
         </div>
         <div class="map-side-panel">
           <div class="map-legend-title">Insight rapidi</div>
@@ -420,7 +461,7 @@ function generateDoc() {
     </div>
     <div class="doc-footer">
       <span>${escapeHtml(indirizzo || '—')} · ${escapeHtml(microzona || '—')} · ${escapeHtml(macrozona || '—')}</span>
-      <span>Dati: ONBILD · Benchmark cantieri comparabili</span>
+      <span>Benchmark cantieri comparabili</span>
       <span>Confidenziale — uso interno</span>
     </div>
   `;
