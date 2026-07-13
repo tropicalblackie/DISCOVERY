@@ -1,7 +1,127 @@
 const STORAGE_KEY = 'discovery-strategica-template-v2';
 const EXPORT_VERSION = 2;
+const GEOCODE_CACHE_KEY = 'discovery-strategica-geocode-v1';
 let cantiereCount = 0;
 let ipCount = 0;
+let leafletMapInstance = null;
+let geocodeCache = loadStoredGeocodeCache();
+
+function loadStoredGeocodeCache() {
+  try {
+    return JSON.parse(localStorage.getItem(GEOCODE_CACHE_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function persistGeocodeCache() {
+  try {
+    localStorage.setItem(GEOCODE_CACHE_KEY, JSON.stringify(geocodeCache));
+  } catch {
+    // Ignore cache persistence failures.
+  }
+}
+
+function normalizeAddress(value) {
+  return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+async function geocodeAddress(address) {
+  const normalized = normalizeAddress(address);
+  if (!normalized) return null;
+  if (Object.prototype.hasOwnProperty.call(geocodeCache, normalized)) {
+    return geocodeCache[normalized];
+  }
+
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=it&q=${encodeURIComponent(address)}`);
+    if (!response.ok) throw new Error('geocoding-failed');
+    const data = await response.json();
+    const first = data?.[0];
+    geocodeCache[normalized] = first ? { lat: Number(first.lat), lon: Number(first.lon) } : null;
+    persistGeocodeCache();
+    return geocodeCache[normalized];
+  } catch {
+    geocodeCache[normalized] = null;
+    persistGeocodeCache();
+    return null;
+  }
+}
+
+async function resolveMapPoints(projectAddress, cantieriData) {
+  const points = [];
+  const projectCoords = await geocodeAddress(projectAddress);
+  points.push({ kind: 'project', label: 'P', name: projectAddress || 'Progetto', coords: projectCoords });
+
+  const comparables = cantieriData.filter((item) => item.addr).slice(0, 8);
+  for (let index = 0; index < comparables.length; index += 1) {
+    const item = comparables[index];
+    const coords = await geocodeAddress(item.addr);
+    points.push({ kind: 'comp', label: String(index + 1), name: item.nome || item.addr, zona: item.zona, coords });
+  }
+
+  return points;
+}
+
+function hasMapCoordinates(points) {
+  return points.some((point) => point.coords?.lat && point.coords?.lon);
+}
+
+function renderLeafletMap(points) {
+  const mapHost = document.getElementById('leaflet-map');
+  if (!mapHost || !window.L) return;
+
+  if (leafletMapInstance) {
+    leafletMapInstance.remove();
+    leafletMapInstance = null;
+  }
+
+  const validPoints = points.filter((point) => point.coords?.lat && point.coords?.lon);
+  if (!validPoints.length) return;
+
+  leafletMapInstance = window.L.map(mapHost, {
+    zoomControl: false,
+    scrollWheelZoom: false,
+    dragging: true,
+    attributionControl: true
+  });
+
+  window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(leafletMapInstance);
+
+  const bounds = [];
+  validPoints.forEach((point) => {
+    const latLng = [point.coords.lat, point.coords.lon];
+    bounds.push(latLng);
+    const marker = point.kind === 'project'
+      ? window.L.circleMarker(latLng, {
+          radius: 8,
+          weight: 3,
+          color: '#ffffff',
+          fillColor: '#2d8a57',
+          fillOpacity: 1
+        })
+      : window.L.circleMarker(latLng, {
+          radius: 7,
+          weight: 3,
+          color: '#ffffff',
+          fillColor: '#0071e3',
+          fillOpacity: 1
+        });
+    marker.bindTooltip(`${point.label} · ${point.name}`, { direction: 'top', opacity: 0.92, sticky: true });
+    marker.addTo(leafletMapInstance);
+  });
+
+  if (bounds.length === 1) {
+    leafletMapInstance.setView(bounds[0], 15);
+  } else {
+    leafletMapInstance.fitBounds(bounds, { padding: [26, 26] });
+  }
+
+  setTimeout(() => leafletMapInstance?.invalidateSize(), 0);
+}
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -73,17 +193,6 @@ function buildPremiumText(mqBp, mqMicro, premio, deprezzo) {
   return '';
 }
 
-function buildStaticMapUrl(cantieriData) {
-  const apiKey = getFieldValue('f_apikey');
-  const indirizzo = getFieldValue('f_indirizzo');
-  const citta = getFieldValue('f_citta');
-  if (!apiKey || !indirizzo) return null;
-  const projectAddr = encodeURIComponent((indirizzo + ', ' + citta).trim());
-  const markers = cantieriData.filter((c) => c.addr).slice(0, 8).map((c, index) => `markers=color:0xb84a2e%7Clabel:${index + 1}%7C${encodeURIComponent(c.addr)}`).join('&');
-  const projectMarker = `markers=color:0x236343%7Clabel:P%7C${projectAddr}`;
-  return `https://maps.googleapis.com/maps/api/staticmap?size=1200x720&scale=2&maptype=roadmap&zoom=14&center=${projectAddr}&${projectMarker}&${markers}&key=${encodeURIComponent(apiKey)}`;
-}
-
 function buildFallbackMapHtml(cantieriData) {
   const projectName = getFieldValue('f_indirizzo') || 'Progetto';
   const nodes = [{ label: 'P', name: projectName, className: 'project', left: 48, top: 50 }];
@@ -111,7 +220,7 @@ function buildFallbackMapHtml(cantieriData) {
 
   return `
     <div class="map-fallback">
-      <div class="map-fallback-badge">Vista schematica</div>
+      <div class="map-fallback-badge">Mappa area</div>
       ${nodes.map((node) => `
         <div class="map-dot ${node.className}" style="left: calc(${node.left}% - 9px); top: calc(${node.top}% - 9px);">
           ${escapeHtml(node.label)}
@@ -313,7 +422,7 @@ function metricKpiHtml(metrics, mqBp) {
   `;
 }
 
-function generateDoc() {
+async function generateDoc() {
   const indirizzo = getFieldValue('f_indirizzo');
   const citta = getFieldValue('f_citta');
   const macrozona = getFieldValue('f_macrozona');
@@ -342,7 +451,8 @@ function generateDoc() {
   const valTest = getFieldValue('val_test');
   const premiumText = buildPremiumText(mqBp, mqMicro, premio, deprezzo);
   const competitorMetrics = generateCompetitorMetrics(cantieri, mqBp);
-  const staticMapUrl = buildStaticMapUrl(cantieri);
+  const projectAddress = [indirizzo, citta].filter(Boolean).join(', ');
+  const mapPoints = await resolveMapPoints(projectAddress, cantieri);
   const metricHtml = metrics.map((metric) => `
     <div class="mc ${metric.color === 'neutral' ? '' : escapeHtml(metric.color)}">
       <div class="mc-label">${escapeHtml(metric.label)}</div>
@@ -350,8 +460,8 @@ function generateDoc() {
       <div class="mc-body">${escapeHtml(metric.body)}</div>
     </div>
   `).join('');
-  const mapVisual = staticMapUrl
-    ? `<img class="map-static" src="${staticMapUrl}" alt="Mappa comparabili e progetto">`
+  const mapVisual = hasMapCoordinates(mapPoints)
+    ? '<div id="leaflet-map" class="leaflet-map" aria-label="Mappa progetto e comparabili"></div>'
     : buildFallbackMapHtml(cantieri);
   const mapHtml = `
     <div class="map-layout">
@@ -360,7 +470,7 @@ function generateDoc() {
         <div class="map-side-panel">
           <div class="map-legend-title">Legenda</div>
           <div class="legend-item"><span class="legend-pin project">P</span>Progetto in analisi</div>
-          ${cantieri.filter((c) => c.addr).slice(0, 8).map((c, index) => `<div class="legend-item"><span class="legend-pin comp">${index + 1}</span>${escapeHtml(c.nome || 'Comparabile')} · ${escapeHtml(c.zona || 'zona n.d.')}</div>`).join('') || '<div class="legend-item">Aggiungi un indirizzo per posizionarlo sulla mappa</div>'}
+          ${cantieri.filter((c) => c.addr).slice(0, 8).map((c, index) => `<div class="legend-item"><span class="legend-pin comp">${index + 1}</span>${escapeHtml(c.nome || 'Comparabile')} · ${escapeHtml(c.zona || 'zona n.d.')}</div>`).join('') || '<div class="legend-item">Aggiungi un indirizzo completo per visualizzarlo</div>'}
         </div>
         <div class="map-side-panel">
           <div class="map-legend-title">Insight rapidi</div>
@@ -467,6 +577,9 @@ function generateDoc() {
   `;
   document.getElementById('input-panel').style.display = 'none';
   document.getElementById('doc-output').style.display = 'block';
+  if (hasMapCoordinates(mapPoints)) {
+    renderLeafletMap(mapPoints);
+  }
   persistFormState();
   window.scrollTo(0, 0);
 }

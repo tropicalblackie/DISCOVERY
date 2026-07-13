@@ -1,26 +1,25 @@
 :root {
-  --ink: #191919;
-  --muted: #666257;
-  --line: #d8d2c5;
-  --line-strong: #b5aa95;
-  --accent: #b84a2e;
-  --accent-strong: #8d3119;
-  --accent-bg: #f5ebe5;
-  --positive: #236343;
-  --positive-bg: #eef6f1;
-  --warning-text: #855300;
-  --warning-bg: #fff6de;
-  --neutral-bg: #f7f4ee;
-  --panel-bg: rgba(255, 251, 246, 0.94);
-  --screen-bg: radial-gradient(circle at top left, #f6efe8 0, #ece6dc 38%, #e3ddd4 100%);
-  --paper: #fffdf8;
+  --ink: #111214;
+  --muted: #6e6e73;
+  --line: #d2d2d7;
+  --line-strong: #c7c7cc;
+  --accent: #0071e3;
+  --accent-strong: #0058b0;
+  --accent-bg: rgba(0, 113, 227, 0.1);
+  --positive: #2d8a57;
+  --positive-bg: rgba(45, 138, 87, 0.12);
+  --warning-text: #b26b00;
+  --warning-bg: rgba(255, 159, 10, 0.12);
+  --neutral-bg: #f5f5f7;
+  --panel-bg: rgba(255, 255, 255, 0.84);
+  --screen-bg: radial-gradient(circle at top, #fbfbfd 0, #f1f2f6 44%, #ebedf2 100%);
+  --paper: #ffffff;
   --white: #ffffff;
-  --shadow: 0 18px 60px rgba(55, 36, 19, 0.12);
-  --radius: 8px;
-  --radius-tight: 4px;
-  --mono: 'IBM Plex Mono', monospace;
-  --sans: 'Manrope', sans-serif;
-  --serif: 'Fraunces', serif;
+  --shadow: 0 24px 80px rgba(17, 18, 20, 0.12);
+  --radius: 24px;
+  --radius-tight: 14px;
+  --mono: "SFMono-Regular", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,7 +40,7 @@ body {
 .app-intro {
   display: flex;
   gap: 24px;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
   align-items: flex-start;
 }
 .doc-eyebrow,
@@ -62,23 +61,24 @@ body {
   letter-spacing: 0.12em;
 }
 h1 {
-  font-family: var(--serif);
-  font-size: clamp(28px, 3.4vw, 38px);
-  line-height: 0.98;
-  letter-spacing: -0.04em;
+  font-family: var(--sans);
+  font-size: clamp(32px, 4vw, 44px);
+  line-height: 0.94;
+  letter-spacing: -0.055em;
+  font-weight: 700;
   max-width: 640px;
 }
 .input-section {
   background: var(--panel-bg);
-  border: 1px solid rgba(181, 170, 149, 0.45);
-  border-radius: 16px;
-  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 28px;
+  padding: 20px;
   margin-bottom: 14px;
-  box-shadow: 0 12px 32px rgba(71, 51, 29, 0.06);
-  backdrop-filter: blur(12px);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(26px) saturate(180%);
 }
 .section-accent {
-  background: linear-gradient(135deg, rgba(245, 235, 229, 0.94), rgba(255, 252, 247, 0.94));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 249, 252, 0.88));
 }
 .section-toolbar {
   display: flex;
@@ -93,9 +93,9 @@ h1 {
   margin-top: 6px;
 }
 .input-section h3 {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--muted);
   margin-bottom: 12px;
 }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -114,24 +114,25 @@ h1 {
 .field select,
 .field textarea {
   width: 100%;
-  border: 1px solid rgba(181, 170, 149, 0.65);
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 12px;
+  border: 1px solid rgba(199, 199, 204, 0.85);
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-size: 13px;
   font-family: var(--sans);
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.84);
+  background: rgba(255, 255, 255, 0.92);
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, transform 0.2s;
 }
 .field textarea { resize: vertical; min-height: 78px; }
 .field input:focus,
 .field select:focus,
 .field textarea:focus,
 #cantieri-table td input:focus {
-  border-color: rgba(184, 74, 46, 0.8);
-  box-shadow: 0 0 0 4px rgba(184, 74, 46, 0.12);
+  border-color: rgba(0, 113, 227, 0.58);
+  box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12);
   background: var(--white);
+  transform: translateY(-1px);
 }
 .field-soft {
   margin-bottom: 12px;
@@ -162,12 +163,12 @@ h1 {
 #cantieri-table td input,
 #cantieri-table td select {
   width: 100%;
-  border: 1px solid rgba(216, 210, 197, 0.88);
-  border-radius: 8px;
+  border: 1px solid rgba(210, 210, 215, 0.9);
+  border-radius: 12px;
   padding: 8px 9px;
   font-size: 10px;
   color: var(--ink);
-  background: rgba(247, 244, 238, 0.9);
+  background: rgba(247, 247, 249, 0.94);
   outline: none;
 }
 #cantieri-table tr:hover td input { background: var(--white); }
@@ -176,29 +177,30 @@ h1 {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 9px 14px;
-  border: 1px solid rgba(181, 170, 149, 0.78);
+  padding: 10px 15px;
+  border: 1px solid rgba(210, 210, 215, 0.95);
   border-radius: 999px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   font-family: var(--sans);
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.96);
   color: var(--ink);
-  transition: transform 0.16s, background 0.16s, border-color 0.16s;
+  transition: transform 0.16s, background 0.16s, border-color 0.16s, box-shadow 0.16s;
 }
 .btn:hover {
   background: var(--white);
-  border-color: rgba(184, 74, 46, 0.58);
-  transform: translateY(-1px);
+  border-color: rgba(0, 113, 227, 0.2);
+  box-shadow: 0 12px 30px rgba(17, 18, 20, 0.08);
+  transform: translateY(-1px) scale(1.01);
 }
 .btn-accent {
-  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  background: linear-gradient(180deg, #1593ff 0, var(--accent) 100%);
   color: var(--white);
   border-color: transparent;
-  box-shadow: 0 12px 24px rgba(184, 74, 46, 0.22);
+  box-shadow: 0 18px 34px rgba(0, 113, 227, 0.24);
 }
-.btn-accent:hover { background: linear-gradient(135deg, #c95335, #972f15); }
+.btn-accent:hover { background: linear-gradient(180deg, #1c9aff 0, #0067d1 100%); }
 .btn-small { padding: 7px 12px; font-size: 10px; }
 .btn-danger { border-color: rgba(184, 74, 46, 0.62); color: var(--accent); }
 .actions-bar {
@@ -223,7 +225,9 @@ h1 {
 .api-note a { color: var(--accent); }
 #doc-output { display: none; }
 .preview-toolbar {
-  background: rgba(25, 25, 25, 0.96);
+  background: rgba(248, 249, 251, 0.9);
+  border-bottom: 1px solid rgba(210, 210, 215, 0.82);
+  backdrop-filter: blur(22px) saturate(180%);
   padding: 12px 20px;
   display: flex;
   gap: 12px;
@@ -233,7 +237,7 @@ h1 {
   z-index: 100;
 }
 .preview-label {
-  color: white;
+  color: var(--ink);
   font-size: 12px;
   font-family: var(--mono);
   letter-spacing: 0.08em;
@@ -247,7 +251,8 @@ h1 {
   margin: 10mm auto;
   padding: 11mm 12.5mm 10mm;
   position: relative;
-  box-shadow: var(--shadow);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.1);
+  border-radius: 20px;
 }
 .doc-header {
   display: grid;
@@ -264,10 +269,10 @@ h1 {
   margin-bottom: 4px;
 }
 .doc-address {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 17pt;
   font-weight: 700;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.05em;
   line-height: 1;
 }
 .doc-meta {
@@ -317,7 +322,7 @@ h1 {
   letter-spacing: 0.08em;
 }
 .ps .ps-val {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 13pt;
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -423,12 +428,20 @@ h1 {
 }
 #map-container {
   width: 100%;
-  height: 145px;
+  height: 168px;
   border: 0.5px solid var(--line);
-  border-radius: 6px;
+  border-radius: 18px;
   overflow: hidden;
   position: relative;
-  background: linear-gradient(180deg, #f7f3eb, #ebe4d9);
+  background: linear-gradient(180deg, #eef4fb, #e6edf7);
+}
+.leaflet-map {
+  width: 100%;
+  height: 100%;
+}
+.leaflet-control-attribution {
+  font-size: 8px !important;
+  background: rgba(255, 255, 255, 0.72) !important;
 }
 .map-static {
   width: 100%;
@@ -436,26 +449,15 @@ h1 {
   object-fit: cover;
   display: block;
 }
-.map-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
-  color: var(--muted);
-  font-family: var(--mono);
-  text-align: center;
-  padding: 10px;
-}
 .map-fallback {
   width: 100%;
   height: 100%;
   position: relative;
   background:
-    linear-gradient(rgba(255,255,255,0.52), rgba(255,255,255,0.52)),
-    linear-gradient(90deg, rgba(184,74,46,0.08) 1px, transparent 1px),
-    linear-gradient(rgba(184,74,46,0.08) 1px, transparent 1px);
+    radial-gradient(circle at top left, rgba(0,113,227,0.14), transparent 42%),
+    linear-gradient(rgba(255,255,255,0.56), rgba(255,255,255,0.56)),
+    linear-gradient(90deg, rgba(0,113,227,0.08) 1px, transparent 1px),
+    linear-gradient(rgba(0,113,227,0.08) 1px, transparent 1px);
   background-size: auto, 34px 34px, 34px 34px;
 }
 .map-fallback-badge {
@@ -464,7 +466,7 @@ h1 {
   left: 8px;
   padding: 4px 6px;
   border-radius: 999px;
-  background: rgba(255, 253, 248, 0.9);
+  background: rgba(255, 255, 255, 0.82);
   border: 0.5px solid var(--line);
   font-family: var(--mono);
   font-size: 5pt;
@@ -486,8 +488,8 @@ h1 {
   font-weight: 700;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
 }
-.map-dot.project { background: var(--positive); }
-.map-dot.comp { background: var(--accent); }
+.map-dot.project { background: linear-gradient(180deg, #38c977, #2d8a57); }
+.map-dot.comp { background: linear-gradient(180deg, #1994ff, #0071e3); }
 .map-dot-label {
   position: absolute;
   margin-top: 22px;
@@ -500,9 +502,9 @@ h1 {
 .map-side { display: grid; gap: 5px; }
 .map-side-panel {
   border: 0.5px solid var(--line);
-  border-radius: 6px;
-  padding: 5px;
-  background: rgba(255, 255, 255, 0.46);
+  border-radius: 18px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.72);
 }
 .map-legend-title {
   font-size: 4.8pt;
@@ -614,9 +616,9 @@ h1 {
   color: var(--accent);
 }
 .takeaway {
-  background: linear-gradient(135deg, #211f1b, #35302a);
+  background: linear-gradient(180deg, #1d1d1f, #2c2c2e);
   color: white;
-  border-radius: 8px;
+  border-radius: 16px;
   padding: 7px 8px;
   margin-top: 4px;
 }
@@ -665,11 +667,11 @@ h1 {
   font-style: italic;
 }
 .ipotesi-editor {
-  border: 1px solid rgba(216, 210, 197, 0.65);
-  border-radius: 14px;
+  border: 1px solid rgba(210, 210, 215, 0.7);
+  border-radius: 20px;
   padding: 12px;
   margin-bottom: 10px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.74);
 }
 .ipotesi-editor-header {
   display: flex;
@@ -685,8 +687,8 @@ h1 {
 }
 .ipotesi-editor-header input {
   flex: 1;
-  border: 1px solid rgba(181, 170, 149, 0.65);
-  border-radius: 10px;
+  border: 1px solid rgba(210, 210, 215, 0.9);
+  border-radius: 14px;
   padding: 10px 12px;
   font-size: 12px;
   font-family: var(--sans);
@@ -725,6 +727,7 @@ h1 {
     margin: 0;
     padding: 16px;
     box-shadow: none;
+    border-radius: 0;
   }
   .doc-meta { text-align: left; }
   .doc-footer { flex-direction: column; }
