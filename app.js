@@ -517,7 +517,7 @@ async function generateDoc() {
   document.getElementById('doc-page').innerHTML = `
     <div class="doc-header">
       <div>
-        <div class="doc-eyebrow">Discovery Strategica · Executive Summary</div>
+        <div class="doc-eyebrow">Discovery</div>
         <div class="doc-address">${indirizzo ? escapeHtml(indirizzo) : '<span class="slot">Indirizzo progetto</span>'}${citta ? `, ${escapeHtml(citta)}` : ''}</div>
       </div>
       <div class="doc-meta">
@@ -607,19 +607,5 @@ function initAutosave() {
   });
 }
 
-function initImportExport() {
-  const exportButton = document.getElementById('export-json-btn');
-  const importButton = document.getElementById('import-json-btn');
-  const importInput = document.getElementById('import-json-input');
-  exportButton?.addEventListener('click', downloadJson);
-  importButton?.addEventListener('click', () => importInput?.click());
-  importInput?.addEventListener('change', (event) => {
-    const file = event.target.files?.[0];
-    if (file) importJsonFile(file);
-    event.target.value = '';
-  });
-}
-
 initAutosave();
-initImportExport();
 if (!restoreFormState()) seedDefaultRows();

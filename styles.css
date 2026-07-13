@@ -30,17 +30,19 @@ body {
   color: var(--ink);
   background: var(--screen-bg);
   min-height: 100vh;
+  min-width: 1320px;
+  overflow-x: auto;
 }
 #input-panel {
-  max-width: 980px;
+  width: 1320px;
   margin: 0 auto;
-  padding: 28px 20px 40px;
+  padding: 32px 28px 56px;
   display: block;
 }
 .app-intro {
   display: flex;
   gap: 24px;
-  margin-bottom: 20px;
+  margin-bottom: 26px;
   align-items: flex-start;
 }
 .doc-eyebrow,
@@ -76,9 +78,6 @@ h1 {
   margin-bottom: 14px;
   box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
   backdrop-filter: blur(26px) saturate(180%);
-}
-.section-accent {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 249, 252, 0.88));
 }
 .section-toolbar {
   display: flex;
@@ -210,7 +209,6 @@ h1 {
   margin-top: 8px;
   flex-wrap: wrap;
 }
-.compact-actions { margin-top: 0; }
 .section-actions { margin-top: 10px; }
 .primary-actions { margin-top: 18px; }
 .autosave-note,
@@ -698,39 +696,6 @@ h1 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-}
-@media (max-width: 960px) {
-  #input-panel { padding: 18px 14px 32px; }
-  .app-intro,
-  .section-toolbar,
-  .form-grid,
-  .form-grid.three,
-  .form-grid.four,
-  .metriche-grid,
-  .metric-kpi-row,
-  .price-bar,
-  .sub-bar,
-  .map-layout,
-  .ipotesi-grid,
-  .val-grid,
-  .inline-two-col,
-  .doc-header {
-    grid-template-columns: 1fr;
-    display: grid;
-  }
-  .app-intro,
-  .section-toolbar { display: flex; flex-direction: column; }
-  .preview-toolbar { flex-wrap: wrap; }
-  .page {
-    width: 100%;
-    min-height: auto;
-    margin: 0;
-    padding: 16px;
-    box-shadow: none;
-    border-radius: 0;
-  }
-  .doc-meta { text-align: left; }
-  .doc-footer { flex-direction: column; }
 }
 @media print {
   body { background: white; }
