@@ -527,6 +527,178 @@ function seedDefaultRows() {
   for (let i = 0; i < 4; i += 1) addIpotesi();
 }
 
+function getPrimaticcioSampleState() {
+  return {
+    version: EXPORT_VERSION,
+    exportedAt: new Date().toISOString(),
+    values: {
+      f_indirizzo: 'Via Primaticcio 123',
+      f_citta: 'Milano',
+      f_macrozona: 'Bande Nere / Primaticcio',
+      f_microzona: 'Primaticcio',
+      f_data: 'Luglio 2026',
+      f_ciclo: 'Maturazione',
+
+      f_mq_milano: '5420',
+      f_mq_macro: '4680',
+      f_mq_micro: '4460',
+      f_mq_bp: '4890',
+      f_mq_nuovo: '5120',
+      f_mq_ottimo: '4720',
+      f_mq_cv: '3890',
+      f_scarto: '-9',
+      f_premio: 'Classe A4, progetto vicino M1 Primaticcio, capitolato premium e layout familiari.',
+      f_deprezzo: 'Unità al piano terra e affacci su strada nelle tipologie ingresso.',
+
+      m1_title: 'B/C - Mercato selettivo',
+      m1_color: 'neutral',
+      m1_body: 'Domanda attiva su tagli familiari con forte attenzione al pricing di ingresso.',
+      m2_title: 'Crescita moderata',
+      m2_color: 'pos',
+      m2_body: 'Asking in salita sui prodotti nuovi in classe energetica alta.',
+      m3_title: '3.890 euro/mq',
+      m3_color: 'neutral',
+      m3_body: 'Closing stabile ma ancora distante dai picchi di asking.',
+      m4_title: 'Volumi in recupero',
+      m4_color: 'opp',
+      m4_body: 'Ripresa graduale su nuclei prima casa e sostituzione abitativa.',
+      m5_title: 'Stock medio-alto',
+      m5_color: 'alert',
+      m5_body: 'Offerta ampia su usato da ristrutturare, pressione competitiva lato prezzo.',
+      m6_title: 'Premio green evidente',
+      m6_color: 'pos',
+      m6_body: 'Classe A con premio tangibile rispetto alle classi D-G in micro-zona.',
+      m7_title: 'Taglio ideale 75-95 mq',
+      m7_color: 'opp',
+      m7_body: 'Trilocali compatti con doppio bagno risultano il mix piu richiesto.',
+
+      tw1: 'Spingere trilocali 80-95 mq come prodotto core per famiglie di zona.',
+      tw2: 'Mantenere premium controllato entro +8/+10% rispetto alla media comparabili.',
+      tw3: 'Attivare pre-selling prima del completamento per ridurre rischio assorbimento.',
+      val_timeline: 'Lancio commerciale in 2 wave: pre-selling iniziale e rilascio progressivo unita premium.',
+      val_test: 'Testare 2 layout trilocale (82 e 91 mq) per 30 giorni misurando CPL e conversione.',
+
+      d_esito: 'GO condizionato',
+      d_conf: '81',
+      d_when: '90 giorni',
+      d_reason: 'Fondamentali di micro-zona positivi ma da monitorare il delta prezzo sui competitor diretti.',
+      d_next: 'Avviare campagna pre-launch e validare assorbimento su prime 8 unita entro il primo trimestre.'
+    },
+    cantieri: [
+      {
+        nome: 'Residenze Primaticcio 98',
+        addr: 'Via Primaticcio 98, Milano',
+        zona: 'Primaticcio',
+        unita: '44',
+        inizio: 'Set 2025',
+        tipo: 'Bilo/Trilo',
+        sup: '86',
+        mq: 4980,
+        en: 'A4',
+        stato: 'In vendita'
+      },
+      {
+        nome: 'Living Giambellino 132',
+        addr: 'Via Giambellino 132, Milano',
+        zona: 'Giambellino',
+        unita: '36',
+        inizio: 'Mar 2025',
+        tipo: 'Trilo/Quadri',
+        sup: '94',
+        mq: 4720,
+        en: 'A3',
+        stato: 'Assorbimento medio'
+      },
+      {
+        nome: 'Nuove Case Inganni',
+        addr: 'Via Inganni 45, Milano',
+        zona: 'Inganni',
+        unita: '52',
+        inizio: 'Gen 2026',
+        tipo: 'Bilo/Trilo',
+        sup: '79',
+        mq: 4580,
+        en: 'A2',
+        stato: 'Prenotazioni aperte'
+      },
+      {
+        nome: 'Green Homes Lorenteggio',
+        addr: 'Via Lorenteggio 181, Milano',
+        zona: 'Lorenteggio',
+        unita: '61',
+        inizio: 'Nov 2025',
+        tipo: 'Mono/Bilo',
+        sup: '68',
+        mq: 4340,
+        en: 'B',
+        stato: 'Assorbimento lento'
+      },
+      {
+        nome: 'Parco delle Torri Ovest',
+        addr: 'Via dei Benedettini 9, Milano',
+        zona: 'Bande Nere',
+        unita: '28',
+        inizio: 'Apr 2026',
+        tipo: 'Trilo',
+        sup: '92',
+        mq: 4860,
+        en: 'A4',
+        stato: 'In vendita'
+      },
+      {
+        nome: 'Cantiere Tolstoj 87',
+        addr: 'Via Tolstoj 87, Milano',
+        zona: 'Tolstoj',
+        unita: '31',
+        inizio: 'Ott 2025',
+        tipo: 'Bilo/Trilo',
+        sup: '83',
+        mq: 4510,
+        en: 'A1',
+        stato: 'Assorbimento medio'
+      }
+    ],
+    ipotesi: [
+      {
+        title: 'Mass Market Selettivo',
+        body: 'Tagli 70-85 mq con pricing ingresso competitivo per massimizzare traffico qualificato.',
+        price: '4.550-4.750 euro/mq - TTS 4-6 mesi'
+      },
+      {
+        title: 'Premium Familiare',
+        body: 'Trilocali 88-102 mq con finiture superiori e servizi condominiali distintivi.',
+        price: '4.900-5.150 euro/mq - TTS 5-7 mesi'
+      },
+      {
+        title: 'Investitore Smart',
+        body: 'Mix bilocali ad alta liquidita con focus su locazione long term in zona metropolitana.',
+        price: '4.600-4.820 euro/mq - TTS 3-5 mesi'
+      },
+      {
+        title: 'Ibrido a Rilascio Progressivo',
+        body: 'Fase 1 con prezzi test, fase 2 con incremento selettivo sulle unita a maggiore domanda.',
+        price: '4.700-5.000 euro/mq - TTS dinamico'
+      }
+    ]
+  };
+}
+
+function loadPrimaticcioSample() {
+  const hasContent = Object.values(collectFieldValues()).some((value) => String(value || '').trim())
+    || getCantieriData().length > 0
+    || getIpotesiData().length > 0;
+
+  if (hasContent) {
+    const ok = window.confirm('Sostituire i dati correnti con il sample Primaticcio?');
+    if (!ok) return;
+  }
+
+  applyState(getPrimaticcioSampleState());
+  saveCurrentProject();
+  updateQualityUI();
+  renderLivePanel();
+}
+
 function scoreCantiere(cantiere, mqBp) {
   let score = 0;
   if (cantiere.addr) score += 12;
@@ -1017,6 +1189,7 @@ window.saveCurrentProject = saveCurrentProject;
 window.duplicateProject = duplicateProject;
 window.deleteCurrentProject = deleteCurrentProject;
 window.applySmartSuggestions = applySmartSuggestions;
+window.loadPrimaticcioSample = loadPrimaticcioSample;
 
 initLaunchSequence();
 loadArchive();
