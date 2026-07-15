@@ -9,7 +9,10 @@
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
     "test:report": "playwright show-report",
-    "quality:check": "npm run test"
+    "quality:check": "npm run test",
+    "firebase:login": "npx firebase-tools login",
+    "firebase:deploy": "npx firebase-tools deploy --only hosting",
+    "firebase:deploy:project": "npx firebase-tools deploy --only hosting --project"
   },
   "repository": {
     "type": "git",

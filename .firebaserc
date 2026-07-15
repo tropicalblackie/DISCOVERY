@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "elekta-bacheca"
+  },
+  "targets": {
+    "elekta-bacheca": {
+      "hosting": {
+        "discovery": [
+          "discovery-41608"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

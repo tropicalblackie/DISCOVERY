@@ -1,0 +1,21 @@
+{
+  "hosting": {
+    "target": "discovery",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "**/.*",
+      "**/node_modules/**",
+      "playwright-report/**",
+      "test-results/**",
+      "tests/**",
+      "README.md",
+      "CHANGELOG.md",
+      "DONE_CRITERIA.md",
+      "package.json",
+      "package-lock.json",
+      "playwright.config.js"
+    ]
+  }
+}

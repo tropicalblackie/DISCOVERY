@@ -70,6 +70,9 @@ test.describe('Discovery closure pack', () => {
     await expect(page.locator('label', { hasText: 'Rating mercato' }).first()).toBeVisible();
     await expect(page.locator('label', { hasText: 'Rating mercato — stato' })).toBeVisible();
     await expect(page.locator('label', { hasText: 'Rating mercato — nota' })).toBeVisible();
+    await expect(page.locator('label', { hasText: 'Domanda' }).first()).toBeVisible();
+    await expect(page.locator('label', { hasText: 'Domanda — stato' })).toBeVisible();
+    await expect(page.locator('label', { hasText: 'Domanda — nota' })).toBeVisible();
 
     await expect(page.getByText('titolo sintetico')).toHaveCount(0);
     await expect(page.getByText('— colore')).toHaveCount(0);
