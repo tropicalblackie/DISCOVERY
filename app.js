@@ -539,16 +539,30 @@ function getPrimaticcioSampleState() {
       f_data: 'Lug 2026',
       f_ciclo: 'Crescita',
 
-      f_mq_milano: '4142',
-      f_mq_macro: '4799',
-      f_mq_micro: '4142',
-      f_mq_bp: '4799',
-      f_mq_nuovo: '5448',
-      f_mq_ottimo: '4539',
-      f_mq_cv: '3680',
-      f_scarto: '-11',
+      f_mq_medio: '4142', f_mq_p80: '4799', f_mq_min: '3164', f_mq_max: '5162',
+      f_m_ott_min: '3629', f_m_ott_med: '4539', f_m_ott_max: '5448',
+      f_m_buo_min: '2973', f_m_buo_med: '3833', f_m_buo_max: '4699',
+      f_m_nor_min: '3200', f_m_nor_med: '3645', f_m_nor_max: '4279',
+      f_l2_min: '3231', f_l2_med: '4304', f_l2_max: '5199',
+      f_l3_min: '3005', f_l3_med: '4054', f_l3_max: '5041',
+      f_l4_min: '3462', f_l4_med: '4131', f_l4_max: '5021',
+      f_mq_bp: '4799', f_scarto: '-11',
       f_premio: 'Categoria catastale A2 e tagli trilocali ben allineati alla domanda locale possono sostenere un premio.',
       f_deprezzo: 'Categoria catastale A4 o mix troppo distante dal trilocale medio riducono la capacita di assorbimento.',
+
+      f_st_tot: '238', f_st_assorb: '0,06', f_st_tts: '3,83 mesi', f_st_tempo: '3,3 mesi',
+      f_st_nuovo: '10', f_st_ottimo: '88', f_st_buono: '89', f_st_nor: '46',
+      f_st_1l: '2', f_st_2l: '77', f_st_3l: '98', f_st_4l: '51', f_st_5l: '9', f_st_5p: '1',
+
+      f_d_ricerche: '12,92%', f_d_visti: '12,06%', f_d_lead: '7,65', f_d_conv: '3,5 /1000',
+      f_d_app: '35', f_d_other: '28', f_d_casa: '13', f_d_villa: '13', f_d_attico: '12',
+      f_d_1l: '5', f_d_2l: '39', f_d_3l: '45', f_d_4l: '10', f_d_5l: '2',
+      f_c_locali: '46', f_c_piano: '32', f_c_stato: '17', f_c_terrazzo: '12', f_c_tipologia: '11', f_c_box: '6', f_c_giardino: '3',
+
+      f_cv_med: '3680', f_cv_range: '1.954–5.709', f_cv_prezzo: '336.027 €', f_cv_ntn: '93,26',
+      f_cv_a2_min: '3414', f_cv_a2_med: '4329', f_cv_a2_max: '5709',
+      f_cv_a3_min: '1953', f_cv_a3_med: '3729', f_cv_a3_max: '4678',
+      f_cv_a4_min: '1852', f_cv_a4_med: '2400', f_cv_a4_max: '2870',
 
       m1_title: 'Zona a domanda contenuta ma stabile',
       m1_color: 'neutral',
@@ -758,11 +772,11 @@ function computeQualityReport() {
   const data = getFieldValue('f_data');
   const ciclo = getFieldValue('f_ciclo');
 
-  const mqMilano = getNumberValue('f_mq_milano');
-  const mqMacro = getNumberValue('f_mq_macro');
-  const mqMicro = getNumberValue('f_mq_micro');
+  const mqMedio = getNumberValue('f_mq_medio');
   const mqBp = getNumberValue('f_mq_bp');
-  const mqCv = getNumberValue('f_mq_cv');
+  const cvMed = getNumberValue('f_cv_med');
+  const stTot = getNumberValue('f_st_tot');
+  const cvNtn = getFieldValue('f_cv_ntn');
 
   const cantieri = getCantieriData();
   const ipotesi = getIpotesiData();
@@ -777,9 +791,9 @@ function computeQualityReport() {
   score += Math.round((baseFields / 6) * 28);
   if (baseFields < 6) warnings.push('Completa i dati generali per migliorare la consistenza.');
 
-  const pricingFields = [mqMilano, mqMacro, mqMicro, mqBp, mqCv].filter((v) => v > 0).length;
+  const pricingFields = [mqMedio, mqBp, cvMed, stTot, cvNtn].filter(Boolean).length;
   score += Math.round((pricingFields / 5) * 24);
-  if (pricingFields < 4) warnings.push('Inserisci piu valori prezzo per un benchmark affidabile.');
+  if (pricingFields < 3) warnings.push('Inserisci i prezzi annunci, BP e compravendite per un benchmark affidabile.');
 
   const fullCantieri = cantieri.filter((item) => item.addr && item.mq > 0).length;
   score += Math.min(22, fullCantieri * 6);
@@ -824,7 +838,7 @@ function validateBeforeGenerate() {
   const indirizzo = getFieldValue('f_indirizzo');
   const citta = getFieldValue('f_citta');
   const mqBp = getNumberValue('f_mq_bp');
-  const mqMicro = getNumberValue('f_mq_micro');
+  const mqMedio = getNumberValue('f_mq_medio');
   const scarto = getNumberValue('f_scarto');
   const cantieri = getCantieriData();
   const ipotesi = getIpotesiData();
@@ -832,7 +846,7 @@ function validateBeforeGenerate() {
   const decisionConf = getNumberValue('d_conf');
 
   if (!indirizzo || !citta) errors.push('Compila indirizzo progetto e citta.');
-  if (mqBp <= 0 || mqMicro <= 0) errors.push('Inserisci almeno €/mq nostro BP e €/mq micro-zona.');
+  if (mqBp <= 0 || mqMedio <= 0) errors.push('Inserisci almeno €/mq Nostro BP e €/mq medio annunci.');
   if (cantieri.length < 2) errors.push('Inserisci almeno 2 cantieri comparabili.');
   if (cantieri.some((item) => !item.addr || item.mq <= 0)) errors.push('Ogni cantiere deve avere indirizzo completo e €/mq.');
   if (ipotesi.filter((item) => item.title && item.body).length < 2) errors.push('Servono almeno 2 ipotesi complete per generare il documento.');
@@ -846,7 +860,7 @@ function applySmartSuggestions() {
   const ciclo = getFieldValue('f_ciclo');
   const micro = getFieldValue('f_microzona') || 'micro-zona';
   const mqBp = getNumberValue('f_mq_bp');
-  const mqMicro = getNumberValue('f_mq_micro');
+  const mqMedio = getNumberValue('f_mq_medio');
 
   if (!getFieldValue('m1_title')) {
     const titleByCycle = ciclo === 'Crescita' ? 'Mercato in accelerazione' : ciclo === 'Contrazione' ? 'Mercato selettivo' : 'Mercato bilanciato';
@@ -862,9 +876,9 @@ function applySmartSuggestions() {
   if (!getFieldValue('tw1')) {
     document.getElementById('tw1').value = `Concentrare l'offerta su tagli ad alta assorbibilita in ${micro}.`;
   }
-  if (!getFieldValue('tw2') && mqBp && mqMicro) {
-    const delta = ((mqBp / mqMicro) - 1) * 100;
-    document.getElementById('tw2').value = `Posizionamento target ${delta >= 0 ? '+' : ''}${delta.toFixed(1)}% vs media micro-zona con narrativa premium chiara.`;
+  if (!getFieldValue('tw2') && mqBp && mqMedio) {
+    const delta = ((mqBp / mqMedio) - 1) * 100;
+    document.getElementById('tw2').value = `Posizionamento target ${delta >= 0 ? '+' : ''}${delta.toFixed(1)}% vs media annunci con narrativa premium chiara.`;
   }
   if (!getFieldValue('val_timeline')) {
     document.getElementById('val_timeline').value = 'Avvio pre-selling con checkpoint lead ogni 14 giorni e revisione prezzo al giorno 75.';
@@ -936,15 +950,35 @@ async function generateDoc() {
   const microzona = getFieldValue('f_microzona');
   const data = getFieldValue('f_data');
   const ciclo = getFieldValue('f_ciclo');
-  const mqMilano = getNumberValue('f_mq_milano');
-  const mqMacro = getNumberValue('f_mq_macro');
-  const mqMicro = getNumberValue('f_mq_micro');
+  // 01 Prezzi annunci
+  const mqMedio = getNumberValue('f_mq_medio');
+  const mqP80 = getNumberValue('f_mq_p80');
+  const mqMin = getNumberValue('f_mq_min');
+  const mqMax = getNumberValue('f_mq_max');
+  const mOttMin = getNumberValue('f_m_ott_min'); const mOttMed = getNumberValue('f_m_ott_med'); const mOttMax = getNumberValue('f_m_ott_max');
+  const mBuoMin = getNumberValue('f_m_buo_min'); const mBuoMed = getNumberValue('f_m_buo_med'); const mBuoMax = getNumberValue('f_m_buo_max');
+  const mNorMin = getNumberValue('f_m_nor_min'); const mNorMed = getNumberValue('f_m_nor_med'); const mNorMax = getNumberValue('f_m_nor_max');
+  const l2Min = getNumberValue('f_l2_min'); const l2Med = getNumberValue('f_l2_med'); const l2Max = getNumberValue('f_l2_max');
+  const l3Min = getNumberValue('f_l3_min'); const l3Med = getNumberValue('f_l3_med'); const l3Max = getNumberValue('f_l3_max');
+  const l4Min = getNumberValue('f_l4_min'); const l4Med = getNumberValue('f_l4_med'); const l4Max = getNumberValue('f_l4_max');
   const mqBp = getNumberValue('f_mq_bp');
-  const mqNuovo = getNumberValue('f_mq_nuovo');
-  const mqCv = getNumberValue('f_mq_cv');
   const scarto = getNumberValue('f_scarto');
   const premio = getFieldValue('f_premio');
   const deprezzo = getFieldValue('f_deprezzo');
+  // 02 Stock
+  const stTot = getNumberValue('f_st_tot'); const stAssorb = getFieldValue('f_st_assorb'); const stTts = getFieldValue('f_st_tts'); const stTempo = getFieldValue('f_st_tempo');
+  const stNuovo = getNumberValue('f_st_nuovo'); const stOttimo = getNumberValue('f_st_ottimo'); const stBuono = getNumberValue('f_st_buono'); const stNor = getNumberValue('f_st_nor');
+  const st1l = getNumberValue('f_st_1l'); const st2l = getNumberValue('f_st_2l'); const st3l = getNumberValue('f_st_3l'); const st4l = getNumberValue('f_st_4l'); const st5l = getNumberValue('f_st_5l'); const st5p = getNumberValue('f_st_5p');
+  // 03 Domanda
+  const dRicerche = getFieldValue('f_d_ricerche'); const dVisti = getFieldValue('f_d_visti'); const dLead = getFieldValue('f_d_lead'); const dConv = getFieldValue('f_d_conv');
+  const dApp = getNumberValue('f_d_app'); const dOther = getNumberValue('f_d_other'); const dCasa = getNumberValue('f_d_casa'); const dVilla = getNumberValue('f_d_villa'); const dAttico = getNumberValue('f_d_attico');
+  const d1l = getNumberValue('f_d_1l'); const d2l = getNumberValue('f_d_2l'); const d3l = getNumberValue('f_d_3l'); const d4l = getNumberValue('f_d_4l'); const d5l = getNumberValue('f_d_5l');
+  const cLocali = getNumberValue('f_c_locali'); const cPiano = getNumberValue('f_c_piano'); const cStato = getNumberValue('f_c_stato'); const cTerrazzo = getNumberValue('f_c_terrazzo'); const cTipologia = getNumberValue('f_c_tipologia'); const cBox = getNumberValue('f_c_box'); const cGiardino = getNumberValue('f_c_giardino');
+  // 04 Compravendite
+  const cvMed = getNumberValue('f_cv_med'); const cvRange = getFieldValue('f_cv_range'); const cvPrezzo = getFieldValue('f_cv_prezzo'); const cvNtn = getFieldValue('f_cv_ntn');
+  const cvA2Min = getNumberValue('f_cv_a2_min'); const cvA2Med = getNumberValue('f_cv_a2_med'); const cvA2Max = getNumberValue('f_cv_a2_max');
+  const cvA3Min = getNumberValue('f_cv_a3_min'); const cvA3Med = getNumberValue('f_cv_a3_med'); const cvA3Max = getNumberValue('f_cv_a3_max');
+  const cvA4Min = getNumberValue('f_cv_a4_min'); const cvA4Med = getNumberValue('f_cv_a4_med'); const cvA4Max = getNumberValue('f_cv_a4_max');
   const metrics = [1, 2, 3, 4, 5, 6, 7].map((i) => ({
     label: ['Rating di mercato', 'Prezzi annunci', 'Prezzi compravendite', 'Volumi di mercato', 'Stock disponibile', 'Domanda', 'Mix dimensionale'][i - 1],
     title: getFieldValue(`m${i}_title`),
@@ -957,7 +991,7 @@ async function generateDoc() {
   const takeaway = [getFieldValue('tw1'), getFieldValue('tw2'), getFieldValue('tw3')].filter(Boolean);
   const valTimeline = getFieldValue('val_timeline');
   const valTest = getFieldValue('val_test');
-  const premiumText = buildPremiumText(mqBp, mqMicro, premio, deprezzo);
+  const premiumText = buildPremiumText(mqBp, mqMedio, premio, deprezzo);
   const competitorMetrics = generateCompetitorMetrics(rankedCantieri, mqBp);
   const projectAddress = [indirizzo, citta].filter(Boolean).join(', ');
   const mapPoints = await resolveMapPoints(projectAddress, rankedCantieri);
@@ -1006,8 +1040,8 @@ async function generateDoc() {
         <td style="font-family:var(--mono);">${escapeHtml(c.inizio || '—')}</td>
         <td>${escapeHtml(c.tipo || '—')}</td>
         <td style="text-align:center; font-family:var(--mono);">${escapeHtml(c.sup || '—')}</td>
-        <td style="text-align:right;">${colorMq(c.mq, mqMicro || mqMacro)}</td>
-        <td style="text-align:right;">${deltaTag(c.mq, mqBp || mqMicro || mqMacro)}</td>
+        <td style="text-align:right;">${colorMq(c.mq, mqMedio)}</td>
+        <td style="text-align:right;">${deltaTag(c.mq, mqBp || mqMedio)}</td>
         <td>${energiaBadge(c.en)}</td>
         <td>${statusBadge(c.stato)}</td>
       </tr>
@@ -1043,22 +1077,123 @@ async function generateDoc() {
       </div>
     </div>
     <div class="doc-section">
-      <div class="doc-section-label">Mercato</div>
+      <div class="doc-section-label">01 · Prezzi annunci</div>
       <div class="price-bar">
-        <div class="ps"><div class="ps-label">€/mq Milano</div><div class="ps-val">${formatNumber(mqMilano)}</div><div class="ps-sub">Riferimento citta</div></div>
-        <div class="ps"><div class="ps-label">€/mq Macro-zona</div><div class="ps-val">${formatNumber(mqMacro)}</div><div class="ps-sub">${escapeHtml(macrozona || '—')}</div></div>
-        <div class="ps"><div class="ps-label">€/mq Micro-zona</div><div class="ps-val">${formatNumber(mqMicro)}</div><div class="ps-sub">${escapeHtml(microzona || '—')}</div></div>
-        <div class="ps accent"><div class="ps-label">€/mq Nostro BP</div><div class="ps-val">${formatNumber(mqBp)}</div><div class="ps-sub">Target di progetto</div></div>
+        <div class="ps"><div class="ps-label">€/mq medio</div><div class="ps-val">${formatNumber(mqMedio)}</div><div class="ps-sub">${escapeHtml(microzona || '—')}</div></div>
+        <div class="ps"><div class="ps-label">€/mq 80° perc.</div><div class="ps-val">${formatNumber(mqP80)}</div><div class="ps-sub">asking alto</div></div>
+        <div class="ps"><div class="ps-label">€/mq minimo</div><div class="ps-val">${formatNumber(mqMin)}</div><div class="ps-sub">fascia bassa</div></div>
+        <div class="ps"><div class="ps-label">€/mq massimo</div><div class="ps-val">${formatNumber(mqMax)}</div><div class="ps-sub">fascia alta</div></div>
+        <div class="ps accent"><div class="ps-label">€/mq Nostro BP</div><div class="ps-val">${formatNumber(mqBp)}</div><div class="ps-sub">target progetto</div></div>
       </div>
-      ${(mqCv || mqNuovo || scarto) ? `<div class="sub-bar">${mqCv ? `<div class="sub-stat"><span class="sub-stat-label">€/mq compravenduto</span><span class="sub-stat-value">${formatNumber(mqCv)}</span></div>` : ''}${mqNuovo ? `<div class="sub-stat"><span class="sub-stat-label">€/mq nuovo/in costr.</span><span class="sub-stat-value">${formatNumber(mqNuovo)}</span></div>` : ''}${scarto ? `<div class="sub-stat"><span class="sub-stat-label">Scarto asking/closing</span><span class="sub-stat-value">${escapeHtml(String(scarto))}%</span></div>` : ''}</div>` : ''}
+      ${(mOttMed || mBuoMed || mNorMed) ? `
+      <table class="data-table">
+        <thead><tr><th>Stato manutenzione</th><th>Minimo</th><th>Medio</th><th>Massimo</th></tr></thead>
+        <tbody>
+          ${mOttMed ? `<tr><td>Ottimo / Ristrutturato</td><td>${formatNumber(mOttMin)}</td><td><strong>${formatNumber(mOttMed)}</strong></td><td>${formatNumber(mOttMax)}</td></tr>` : ''}
+          ${mBuoMed ? `<tr><td>Buono / Abitabile</td><td>${formatNumber(mBuoMin)}</td><td><strong>${formatNumber(mBuoMed)}</strong></td><td>${formatNumber(mBuoMax)}</td></tr>` : ''}
+          ${mNorMed ? `<tr><td>Non ristrutturato</td><td>${formatNumber(mNorMin)}</td><td><strong>${formatNumber(mNorMed)}</strong></td><td>${formatNumber(mNorMax)}</td></tr>` : ''}
+        </tbody>
+      </table>` : ''}
+      ${(l2Med || l3Med || l4Med) ? `
+      <table class="data-table">
+        <thead><tr><th>N° locali</th><th>Minimo</th><th>Medio</th><th>Massimo</th></tr></thead>
+        <tbody>
+          ${l2Med ? `<tr><td>2 locali</td><td>${formatNumber(l2Min)}</td><td><strong>${formatNumber(l2Med)}</strong></td><td>${formatNumber(l2Max)}</td></tr>` : ''}
+          ${l3Med ? `<tr><td>3 locali</td><td>${formatNumber(l3Min)}</td><td><strong>${formatNumber(l3Med)}</strong></td><td>${formatNumber(l3Max)}</td></tr>` : ''}
+          ${l4Med ? `<tr><td>4 locali</td><td>${formatNumber(l4Min)}</td><td><strong>${formatNumber(l4Med)}</strong></td><td>${formatNumber(l4Max)}</td></tr>` : ''}
+        </tbody>
+      </table>` : ''}
+      ${scarto ? `<div class="sub-bar"><div class="sub-stat"><span class="sub-stat-label">Scarto asking/closing</span><span class="sub-stat-value">${escapeHtml(String(scarto))}%</span></div></div>` : ''}
       ${premiumText ? `<div class="premium-note"><strong>Premio / Deprezzamento:</strong> ${premiumText}</div>` : ''}
     </div>
     <div class="doc-section">
-      <div class="doc-section-label">Metriche</div>
+      <div class="doc-section-label">02 · Stock annunci</div>
+      <div class="price-bar">
+        ${stTot ? `<div class="ps"><div class="ps-label">Tot. annunci</div><div class="ps-val">${formatNumber(stTot)}</div><div class="ps-sub">attivi</div></div>` : ''}
+        ${stAssorb ? `<div class="ps"><div class="ps-label">Indice assorb.</div><div class="ps-val">${escapeHtml(stAssorb)}</div><div class="ps-sub">mensile</div></div>` : ''}
+        ${stTts ? `<div class="ps"><div class="ps-label">Time to sell</div><div class="ps-val">${escapeHtml(stTts)}</div><div class="ps-sub">stima</div></div>` : ''}
+        ${stTempo ? `<div class="ps"><div class="ps-label">Tempo mercato</div><div class="ps-val">${escapeHtml(stTempo)}</div><div class="ps-sub">medio</div></div>` : ''}
+      </div>
+      ${(stNuovo || stOttimo || stBuono || stNor) ? `
+      <table class="data-table">
+        <thead><tr><th>Stato manutenzione</th><th>N° annunci</th></tr></thead>
+        <tbody>
+          ${stNuovo !== 0 ? `<tr><td>Nuovo / In costruzione</td><td><strong>${formatNumber(stNuovo)}</strong></td></tr>` : ''}
+          ${stOttimo ? `<tr><td>Ottimo / Ristrutturato</td><td>${formatNumber(stOttimo)}</td></tr>` : ''}
+          ${stBuono ? `<tr><td>Buono / Abitabile</td><td>${formatNumber(stBuono)}</td></tr>` : ''}
+          ${stNor ? `<tr><td>Non ristrutturato</td><td>${formatNumber(stNor)}</td></tr>` : ''}
+        </tbody>
+      </table>` : ''}
+      ${(st2l || st3l) ? `
+      <table class="data-table">
+        <thead><tr><th>N° locali</th><th>N° annunci</th></tr></thead>
+        <tbody>
+          ${st1l ? `<tr><td>1 locale</td><td>${formatNumber(st1l)}</td></tr>` : ''}
+          ${st2l ? `<tr><td>2 locali</td><td>${formatNumber(st2l)}</td></tr>` : ''}
+          ${st3l ? `<tr><td>3 locali</td><td><strong>${formatNumber(st3l)}</strong></td></tr>` : ''}
+          ${st4l ? `<tr><td>4 locali</td><td>${formatNumber(st4l)}</td></tr>` : ''}
+          ${st5l ? `<tr><td>5 locali</td><td>${formatNumber(st5l)}</td></tr>` : ''}
+          ${st5p ? `<tr><td>Più di 5 locali</td><td>${formatNumber(st5p)}</td></tr>` : ''}
+        </tbody>
+      </table>` : ''}
+    </div>
+    <div class="doc-section">
+      <div class="doc-section-label">03 · Domanda</div>
+      <div class="price-bar">
+        ${dRicerche ? `<div class="ps"><div class="ps-label">Quota ricerche</div><div class="ps-val">${escapeHtml(dRicerche)}</div><div class="ps-sub">zona</div></div>` : ''}
+        ${dVisti ? `<div class="ps"><div class="ps-label">Quota ann. visti</div><div class="ps-val">${escapeHtml(dVisti)}</div><div class="ps-sub">&nbsp;</div></div>` : ''}
+        ${dLead ? `<div class="ps"><div class="ps-label">Lead medi/ann.</div><div class="ps-val">${escapeHtml(dLead)}</div><div class="ps-sub">&nbsp;</div></div>` : ''}
+        ${dConv ? `<div class="ps accent"><div class="ps-label">Tasso conversione</div><div class="ps-val">${escapeHtml(dConv)}</div><div class="ps-sub">&nbsp;</div></div>` : ''}
+      </div>
+      ${(d2l || d3l) ? `
+      <table class="data-table">
+        <thead><tr><th>N° locali ricercato</th><th>%</th><th>Tipo immobile</th><th>%</th></tr></thead>
+        <tbody>
+          <tr><td>1 locale</td><td>${d1l ? d1l + '%' : '—'}</td><td>Appartamento</td><td>${dApp ? dApp + '%' : '—'}</td></tr>
+          <tr><td>2 locali</td><td>${d2l ? d2l + '%' : '—'}</td><td>Other / non spec.</td><td>${dOther ? dOther + '%' : '—'}</td></tr>
+          <tr><td><strong>3 locali</strong></td><td><strong>${d3l ? d3l + '%' : '—'}</strong></td><td>Casa indipendente</td><td>${dCasa ? dCasa + '%' : '—'}</td></tr>
+          <tr><td>4 locali</td><td>${d4l ? d4l + '%' : '—'}</td><td>Villa</td><td>${dVilla ? dVilla + '%' : '—'}</td></tr>
+          <tr><td>5 locali</td><td>${d5l ? d5l + '%' : '—'}</td><td>Attico / Mansarda</td><td>${dAttico ? dAttico + '%' : '—'}</td></tr>
+        </tbody>
+      </table>` : ''}
+      ${cLocali ? `
+      <table class="data-table">
+        <thead><tr><th>Caratteristica più cercata</th><th>%</th></tr></thead>
+        <tbody>
+          <tr><td>N. locali minimo</td><td>${cLocali}%</td></tr>
+          ${cPiano ? `<tr><td>Piano specifico</td><td>${cPiano}%</td></tr>` : ''}
+          ${cStato ? `<tr><td>Stato specifico</td><td>${cStato}%</td></tr>` : ''}
+          ${cTerrazzo ? `<tr><td>Terrazzo / Balcone</td><td>${cTerrazzo}%</td></tr>` : ''}
+          ${cTipologia ? `<tr><td>Tipologia specifica</td><td>${cTipologia}%</td></tr>` : ''}
+          ${cBox ? `<tr><td>Box / Posto auto</td><td>${cBox}%</td></tr>` : ''}
+          ${cGiardino ? `<tr><td>Giardino</td><td>${cGiardino}%</td></tr>` : ''}
+        </tbody>
+      </table>` : ''}
+    </div>
+    <div class="doc-section">
+      <div class="doc-section-label">04 · Compravendite</div>
+      <div class="price-bar">
+        ${cvMed ? `<div class="ps accent"><div class="ps-label">€/mq medio CV</div><div class="ps-val">${formatNumber(cvMed)}</div><div class="ps-sub">${escapeHtml(microzona || '—')}</div></div>` : ''}
+        ${cvRange ? `<div class="ps"><div class="ps-label">Range €/mq</div><div class="ps-val">${escapeHtml(cvRange)}</div><div class="ps-sub">min–max</div></div>` : ''}
+        ${cvPrezzo ? `<div class="ps"><div class="ps-label">Prezzo medio</div><div class="ps-val">${escapeHtml(cvPrezzo)}</div><div class="ps-sub">per unità</div></div>` : ''}
+        ${cvNtn ? `<div class="ps"><div class="ps-label">NTN</div><div class="ps-val">${escapeHtml(cvNtn)}</div><div class="ps-sub">transazioni</div></div>` : ''}
+      </div>
+      ${(cvA2Med || cvA3Med || cvA4Med) ? `
+      <table class="data-table">
+        <thead><tr><th>Categoria catastale</th><th>Minimo</th><th>Medio</th><th>Massimo</th></tr></thead>
+        <tbody>
+          ${cvA2Med ? `<tr><td>A2 · Civile</td><td>${formatNumber(cvA2Min)}</td><td><strong>${formatNumber(cvA2Med)}</strong></td><td>${formatNumber(cvA2Max)}</td></tr>` : ''}
+          ${cvA3Med ? `<tr><td>A3 · Economico</td><td>${formatNumber(cvA3Min)}</td><td><strong>${formatNumber(cvA3Med)}</strong></td><td>${formatNumber(cvA3Max)}</td></tr>` : ''}
+          ${cvA4Med ? `<tr><td>A4 · Popolare</td><td>${formatNumber(cvA4Min)}</td><td><strong>${formatNumber(cvA4Med)}</strong></td><td>${formatNumber(cvA4Max)}</td></tr>` : ''}
+        </tbody>
+      </table>` : ''}
+    </div>
+    <div class="doc-section">
+      <div class="doc-section-label">05 · Metriche chiave</div>
       <div class="metriche-grid">${metricHtml}</div>
     </div>
     <div class="doc-section">
-      <div class="doc-section-label">Cantieri</div>
+      <div class="doc-section-label">06 · Cantieri limitrofi</div>
       ${metricKpiHtml(competitorMetrics, mqBp)}
       ${mapHtml}
       <table class="comp-table">
@@ -1081,11 +1216,11 @@ async function generateDoc() {
       </table>
     </div>
     <div class="doc-section">
-      <div class="doc-section-label">Ipotesi</div>
+      <div class="doc-section-label">08 · Ipotesi di sviluppo</div>
       <div class="ipotesi-grid">${ipotesiHtml}</div>
     </div>
     <div class="doc-section">
-      <div class="doc-section-label">Takeaway</div>
+      <div class="doc-section-label">09 · Takeaway</div>
       <div class="takeaway">${takeawayHtml}</div>
       <div class="val-grid">
         <div class="val-box"><div class="val-label">Timeline commercializzazione</div><div class="val-body">${valTimeline ? escapeHtml(valTimeline) : '<span class="slot">Da compilare</span>'}</div></div>
@@ -1093,7 +1228,7 @@ async function generateDoc() {
       </div>
     </div>
     <div class="doc-section">
-      <div class="doc-section-label">Decisione</div>
+      <div class="doc-section-label">07 · Decisione operativa</div>
       ${getDecisionHtml()}
     </div>
     <div class="doc-footer">

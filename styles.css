@@ -266,6 +266,14 @@ h1 {
 .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
 .form-grid.four { grid-template-columns: repeat(4, 1fr); }
 .form-grid.full { grid-template-columns: 1fr; }
+.form-grid.table-3col { grid-template-columns: 160px 1fr 1fr 1fr; gap: 6px 10px; align-items: center; }
+.form-grid.table-3col .col-head { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; padding-bottom: 2px; }
+.form-grid.table-3col .row-label { font-size: 11px; color: var(--text); padding-right: 4px; }
+.section-sub-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 14px 0 4px; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 7.5pt; margin-top: 6px; }
+.data-table th { text-align: left; font-weight: 700; font-size: 7pt; color: var(--muted); border-bottom: 1px solid var(--border); padding: 3px 6px; }
+.data-table td { padding: 3px 6px; border-bottom: 1px solid var(--border-light, #f0f0f0); }
+.data-table tr:last-child td { border-bottom: none; }
 .spaced-grid { margin-top: 10px; }
 .field label {
   display: block;

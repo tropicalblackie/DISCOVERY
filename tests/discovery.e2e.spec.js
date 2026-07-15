@@ -4,7 +4,7 @@ async function fillRequiredData(page) {
   await page.locator('#f_indirizzo').fill('Via Test QA 12');
   await page.locator('#f_citta').fill('Milano');
   await page.locator('#f_mq_bp').fill('5200');
-  await page.locator('#f_mq_micro').fill('4800');
+  await page.locator('#f_mq_medio').fill('4800');
 
   const rows = page.locator('#cantieri-tbody tr');
   await rows.nth(0).locator('.c_nome').fill('Cantiere A');
@@ -54,7 +54,7 @@ test.describe('Discovery closure pack', () => {
 
     await page.getByRole('button', { name: 'Genera documento A4' }).click();
     await expect(page.locator('#doc-output')).toBeVisible();
-    await expect(page.locator('#doc-page .doc-section')).toHaveCount(6);
+    await expect(page.locator('#doc-page .doc-section')).toHaveCount(9);
   });
 
   test('form state persists after reload', async ({ page }) => {

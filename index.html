@@ -53,27 +53,145 @@
   </div>
 
   <div class="input-section">
-    <h3>Prezzi</h3>
+    <h3>01 · Prezzi annunci</h3>
     <div class="form-grid four">
-      <div class="field"><label>€/mq Milano generale</label><input type="number" id="f_mq_milano" placeholder="Es. 5100"></div>
-      <div class="field"><label>€/mq Macro-zona</label><input type="number" id="f_mq_macro" placeholder="Es. 4400"></div>
-      <div class="field"><label>€/mq Micro-zona</label><input type="number" id="f_mq_micro" placeholder="Es. 4148"></div>
-      <div class="field"><label>€/mq Nostro BP</label><input type="number" id="f_mq_bp" placeholder="Es. 5115"></div>
+      <div class="field"><label>€/mq medio</label><input type="number" id="f_mq_medio" placeholder="Es. 4142"></div>
+      <div class="field"><label>€/mq 80° perc.</label><input type="number" id="f_mq_p80" placeholder="Es. 4799"></div>
+      <div class="field"><label>€/mq minimo</label><input type="number" id="f_mq_min" placeholder="Es. 3164"></div>
+      <div class="field"><label>€/mq massimo</label><input type="number" id="f_mq_max" placeholder="Es. 5162"></div>
+    </div>
+    <div class="section-sub-label">Per stato manutenzione</div>
+    <div class="form-grid table-3col">
+      <div></div><div class="col-head">Minimo</div><div class="col-head">Medio</div><div class="col-head">Massimo</div>
+      <div class="row-label">Ottimo / Ristrutturato</div>
+      <div class="field"><input type="number" id="f_m_ott_min" placeholder="Es. 3629"></div>
+      <div class="field"><input type="number" id="f_m_ott_med" placeholder="Es. 4539"></div>
+      <div class="field"><input type="number" id="f_m_ott_max" placeholder="Es. 5448"></div>
+      <div class="row-label">Buono / Abitabile</div>
+      <div class="field"><input type="number" id="f_m_buo_min" placeholder="Es. 2973"></div>
+      <div class="field"><input type="number" id="f_m_buo_med" placeholder="Es. 3833"></div>
+      <div class="field"><input type="number" id="f_m_buo_max" placeholder="Es. 4699"></div>
+      <div class="row-label">Non ristrutturato</div>
+      <div class="field"><input type="number" id="f_m_nor_min" placeholder="Es. 3200"></div>
+      <div class="field"><input type="number" id="f_m_nor_med" placeholder="Es. 3645"></div>
+      <div class="field"><input type="number" id="f_m_nor_max" placeholder="Es. 4279"></div>
+    </div>
+    <div class="section-sub-label">€/mq per n° locali</div>
+    <div class="form-grid table-3col">
+      <div></div><div class="col-head">Minimo</div><div class="col-head">Medio</div><div class="col-head">Massimo</div>
+      <div class="row-label">2 locali</div>
+      <div class="field"><input type="number" id="f_l2_min" placeholder="Es. 3231"></div>
+      <div class="field"><input type="number" id="f_l2_med" placeholder="Es. 4304"></div>
+      <div class="field"><input type="number" id="f_l2_max" placeholder="Es. 5199"></div>
+      <div class="row-label">3 locali</div>
+      <div class="field"><input type="number" id="f_l3_min" placeholder="Es. 3005"></div>
+      <div class="field"><input type="number" id="f_l3_med" placeholder="Es. 4054"></div>
+      <div class="field"><input type="number" id="f_l3_max" placeholder="Es. 5041"></div>
+      <div class="row-label">4 locali</div>
+      <div class="field"><input type="number" id="f_l4_min" placeholder="Es. 3462"></div>
+      <div class="field"><input type="number" id="f_l4_med" placeholder="Es. 4131"></div>
+      <div class="field"><input type="number" id="f_l4_max" placeholder="Es. 5021"></div>
     </div>
     <div class="form-grid four spaced-grid">
-      <div class="field"><label>€/mq Nuovo/In costr.</label><input type="number" id="f_mq_nuovo" placeholder="Es. 4934"></div>
-      <div class="field"><label>€/mq Ottimo/Ristr.</label><input type="number" id="f_mq_ottimo" placeholder="Es. 4639"></div>
-      <div class="field"><label>€/mq Compravenduto</label><input type="number" id="f_mq_cv" placeholder="Es. 3639"></div>
-      <div class="field"><label>Scarto asking/closing %</label><input type="number" id="f_scarto" placeholder="Es. -12"></div>
+      <div class="field"><label>€/mq Nostro BP target</label><input type="number" id="f_mq_bp" placeholder="Es. 4799"></div>
+      <div class="field"><label>Scarto asking/closing %</label><input type="number" id="f_scarto" placeholder="Es. -11"></div>
     </div>
     <div class="form-grid spaced-grid">
-      <div class="field"><label>Motivazione PREMIO</label><textarea id="f_premio" placeholder="Es. Piano alto, classe A+, unico nuovo in zona, affacci liberi..."></textarea></div>
-      <div class="field"><label>Motivazione DEPREZZAMENTO</label><textarea id="f_deprezzo" placeholder="Es. Piano terra, loft atipico, contesto non premiante..."></textarea></div>
+      <div class="field"><label>Motivazione PREMIO</label><textarea id="f_premio" placeholder="Es. Categoria catastale A2, layout familiare..."></textarea></div>
+      <div class="field"><label>Motivazione DEPREZZAMENTO</label><textarea id="f_deprezzo" placeholder="Es. Categoria A4, piano terra..."></textarea></div>
     </div>
   </div>
 
   <div class="input-section">
-    <h3>Metriche</h3>
+    <h3>02 · Stock annunci</h3>
+    <div class="form-grid four">
+      <div class="field"><label>Tot. annunci</label><input type="number" id="f_st_tot" placeholder="Es. 238"></div>
+      <div class="field"><label>Indice assorb.</label><input type="text" id="f_st_assorb" placeholder="Es. 0,06"></div>
+      <div class="field"><label>Time to sell</label><input type="text" id="f_st_tts" placeholder="Es. 3,83 mesi"></div>
+      <div class="field"><label>Tempo mercato</label><input type="text" id="f_st_tempo" placeholder="Es. 3,3 mesi"></div>
+    </div>
+    <div class="section-sub-label">N° annunci per stato manutenzione</div>
+    <div class="form-grid four">
+      <div class="field"><label>Nuovo / In costruzione</label><input type="number" id="f_st_nuovo" placeholder="Es. 10"></div>
+      <div class="field"><label>Ottimo / Ristrutturato</label><input type="number" id="f_st_ottimo" placeholder="Es. 88"></div>
+      <div class="field"><label>Buono / Abitabile</label><input type="number" id="f_st_buono" placeholder="Es. 89"></div>
+      <div class="field"><label>Non ristrutturato</label><input type="number" id="f_st_nor" placeholder="Es. 46"></div>
+    </div>
+    <div class="section-sub-label">N° annunci per n° locali</div>
+    <div class="form-grid four">
+      <div class="field"><label>1 locale</label><input type="number" id="f_st_1l" placeholder="Es. 2"></div>
+      <div class="field"><label>2 locali</label><input type="number" id="f_st_2l" placeholder="Es. 77"></div>
+      <div class="field"><label>3 locali</label><input type="number" id="f_st_3l" placeholder="Es. 98"></div>
+      <div class="field"><label>4 locali</label><input type="number" id="f_st_4l" placeholder="Es. 51"></div>
+      <div class="field"><label>5 locali</label><input type="number" id="f_st_5l" placeholder="Es. 9"></div>
+      <div class="field"><label>Più di 5 locali</label><input type="number" id="f_st_5p" placeholder="Es. 1"></div>
+    </div>
+  </div>
+
+  <div class="input-section">
+    <h3>03 · Domanda</h3>
+    <div class="form-grid four">
+      <div class="field"><label>Quota ricerche zona</label><input type="text" id="f_d_ricerche" placeholder="Es. 12,92%"></div>
+      <div class="field"><label>Quota ann. visti</label><input type="text" id="f_d_visti" placeholder="Es. 12,06%"></div>
+      <div class="field"><label>Lead medi/annuncio</label><input type="text" id="f_d_lead" placeholder="Es. 7,65"></div>
+      <div class="field"><label>Tasso conversione</label><input type="text" id="f_d_conv" placeholder="Es. 3,5 /1000"></div>
+    </div>
+    <div class="section-sub-label">Tipo immobile ricercato (%)</div>
+    <div class="form-grid four">
+      <div class="field"><label>Appartamento</label><input type="number" id="f_d_app" placeholder="Es. 35"></div>
+      <div class="field"><label>Other / non spec.</label><input type="number" id="f_d_other" placeholder="Es. 28"></div>
+      <div class="field"><label>Casa indipendente</label><input type="number" id="f_d_casa" placeholder="Es. 13"></div>
+      <div class="field"><label>Villa</label><input type="number" id="f_d_villa" placeholder="Es. 13"></div>
+      <div class="field"><label>Attico / Mansarda</label><input type="number" id="f_d_attico" placeholder="Es. 12"></div>
+    </div>
+    <div class="section-sub-label">N° locali ricercato (%)</div>
+    <div class="form-grid four">
+      <div class="field"><label>1 locale</label><input type="number" id="f_d_1l" placeholder="Es. 5"></div>
+      <div class="field"><label>2 locali</label><input type="number" id="f_d_2l" placeholder="Es. 39"></div>
+      <div class="field"><label>3 locali</label><input type="number" id="f_d_3l" placeholder="Es. 45"></div>
+      <div class="field"><label>4 locali</label><input type="number" id="f_d_4l" placeholder="Es. 10"></div>
+      <div class="field"><label>5 locali</label><input type="number" id="f_d_5l" placeholder="Es. 2"></div>
+    </div>
+    <div class="section-sub-label">Caratteristiche più cercate (%)</div>
+    <div class="form-grid four">
+      <div class="field"><label>N. locali minimo</label><input type="number" id="f_c_locali" placeholder="Es. 46"></div>
+      <div class="field"><label>Piano specifico</label><input type="number" id="f_c_piano" placeholder="Es. 32"></div>
+      <div class="field"><label>Stato specifico</label><input type="number" id="f_c_stato" placeholder="Es. 17"></div>
+      <div class="field"><label>Terrazzo / Balcone</label><input type="number" id="f_c_terrazzo" placeholder="Es. 12"></div>
+      <div class="field"><label>Tipologia specifica</label><input type="number" id="f_c_tipologia" placeholder="Es. 11"></div>
+      <div class="field"><label>Box / Posto auto</label><input type="number" id="f_c_box" placeholder="Es. 6"></div>
+      <div class="field"><label>Giardino</label><input type="number" id="f_c_giardino" placeholder="Es. 3"></div>
+    </div>
+  </div>
+
+  <div class="input-section">
+    <h3>04 · Compravendite</h3>
+    <div class="form-grid four">
+      <div class="field"><label>€/mq medio</label><input type="number" id="f_cv_med" placeholder="Es. 3680"></div>
+      <div class="field"><label>€/mq min–max</label><input type="text" id="f_cv_range" placeholder="Es. 1.954–5.709"></div>
+      <div class="field"><label>Prezzo medio</label><input type="text" id="f_cv_prezzo" placeholder="Es. 336.027 €"></div>
+      <div class="field"><label>NTN (transaz.)</label><input type="text" id="f_cv_ntn" placeholder="Es. 93,26"></div>
+    </div>
+    <div class="section-sub-label">Per categoria catastale</div>
+    <div class="form-grid table-3col">
+      <div></div><div class="col-head">Minimo</div><div class="col-head">Medio</div><div class="col-head">Massimo</div>
+      <div class="row-label">A2 · Civile</div>
+      <div class="field"><input type="number" id="f_cv_a2_min" placeholder="Es. 3414"></div>
+      <div class="field"><input type="number" id="f_cv_a2_med" placeholder="Es. 4329"></div>
+      <div class="field"><input type="number" id="f_cv_a2_max" placeholder="Es. 5709"></div>
+      <div class="row-label">A3 · Economico</div>
+      <div class="field"><input type="number" id="f_cv_a3_min" placeholder="Es. 1953"></div>
+      <div class="field"><input type="number" id="f_cv_a3_med" placeholder="Es. 3729"></div>
+      <div class="field"><input type="number" id="f_cv_a3_max" placeholder="Es. 4678"></div>
+      <div class="row-label">A4 · Popolare</div>
+      <div class="field"><input type="number" id="f_cv_a4_min" placeholder="Es. 1852"></div>
+      <div class="field"><input type="number" id="f_cv_a4_med" placeholder="Es. 2400"></div>
+      <div class="field"><input type="number" id="f_cv_a4_max" placeholder="Es. 2870"></div>
+    </div>
+  </div>
+
+  <div class="input-section">
+    <h3>05 · Metriche chiave</h3>
     <div class="form-grid three">
       <div class="field"><label>Rating mercato</label><input type="text" id="m1_title" placeholder="Es. B/C — Mercato in maturazione"></div>
       <div class="field"><label>Rating mercato — stato</label><select id="m1_color"><option value="neutral">Neutro</option><option value="pos">Positivo</option><option value="alert">Critico</option><option value="opp">Opportunità</option></select></div>
@@ -102,7 +220,7 @@
   <div class="input-section">
     <div class="section-toolbar">
       <div>
-        <h3>Cantieri</h3>
+        <h3>06 · Cantieri limitrofi</h3>
       </div>
     </div>
     <div style="overflow-x:auto;">
@@ -133,7 +251,7 @@
   <div class="input-section">
     <div class="section-toolbar">
       <div>
-        <h3>Ipotesi</h3>
+        <h3>08 · Ipotesi di sviluppo</h3>
       </div>
       <button class="btn btn-small" type="button" onclick="addIpotesi()">+ Aggiungi ipotesi</button>
     </div>
@@ -141,7 +259,7 @@
   </div>
 
   <div class="input-section">
-    <h3>Takeaway</h3>
+    <h3>09 · Takeaway</h3>
     <div class="form-grid full">
       <div class="field"><label>Takeaway 1</label><input type="text" id="tw1" placeholder="Es. Punta su trilocali 80-95 mq: unico gap di offerta nuova in zona..."></div>
       <div class="field"><label>Takeaway 2</label><input type="text" id="tw2" placeholder="Es. Classe A è moltiplicatore di prezzo, non optional..."></div>
@@ -154,7 +272,7 @@
   </div>
 
   <div class="input-section">
-    <h3>Decisione</h3>
+    <h3>07 · Decisione operativa</h3>
     <div class="form-grid three">
       <div class="field"><label>Decisione</label>
         <select id="d_esito">
