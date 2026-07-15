@@ -96,8 +96,8 @@ function renderLeafletMap(points) {
   if (!validPoints.length) return;
 
   leafletMapInstance = window.L.map(mapHost, {
-    zoomControl: false,
-    scrollWheelZoom: false,
+    zoomControl: true,
+    scrollWheelZoom: true,
     dragging: true,
     attributionControl: true
   });
@@ -106,6 +106,8 @@ function renderLeafletMap(points) {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap'
   }).addTo(leafletMapInstance);
+
+  leafletMapInstance.zoomControl.setPosition('bottomright');
 
   const bounds = [];
   validPoints.forEach((point) => {
@@ -937,11 +939,10 @@ async function generateDoc() {
     const validationBox = document.getElementById('validation-errors');
     if (validationBox) {
       validationBox.classList.add('show');
-      validationBox.innerHTML = `<strong>Blocco generazione</strong><ul>${hardErrors.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
+      validationBox.innerHTML = `<strong>Attenzione</strong><ul>${hardErrors.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
     }
     updateQualityUI();
-    window.scrollTo(0, 0);
-    return;
+    // non blocchiamo: la scheda si genera comunque
   }
 
   const indirizzo = getFieldValue('f_indirizzo');
