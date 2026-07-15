@@ -76,11 +76,8 @@ async function resolveMapPoints(projectAddress, rankedCantieri) {
   return points;
 }
 
-function canRenderFullLeafletMap(points, rankedCantieri) {
-  const projectPoint = points.find((point) => point.kind === 'project');
-  const comparableCount = rankedCantieri.filter((item) => item.addr).slice(0, 8).length;
-  const geocodedComparableCount = points.filter((point) => point.kind === 'comp' && hasCoords(point)).length;
-  return Boolean(hasCoords(projectPoint)) && comparableCount > 0 && geocodedComparableCount === comparableCount;
+function canRenderFullLeafletMap(points) {
+  return points.some((point) => hasCoords(point));
 }
 
 function renderLeafletMap(points) {
@@ -603,7 +600,7 @@ function getPrimaticcioSampleState() {
     cantieri: [
       {
         nome: 'Dils-Nizzoli8',
-        addr: 'Via M. Nizzoli, 8, MI',
+        addr: 'Via Marcello Nizzoli, 8, Milano',
         zona: 'Bande Nere',
         unita: '16',
         inizio: 'Gen 2024',
@@ -615,7 +612,7 @@ function getPrimaticcioSampleState() {
       },
       {
         nome: '3070-Nizzoli4',
-        addr: 'Via M. Nizzoli, 4, MI',
+        addr: 'Via Marcello Nizzoli, 4, Milano',
         zona: 'Bande Nere',
         unita: '8',
         inizio: 'Mar 2023',
@@ -627,7 +624,7 @@ function getPrimaticcioSampleState() {
       },
       {
         nome: '702D-Tuberose',
-        addr: 'Via Tuberose, 14, MI',
+        addr: 'Via Tuberose, 14, Milano',
         zona: 'Bande Nere',
         unita: '1',
         inizio: 'Lug 2023',
@@ -639,7 +636,7 @@ function getPrimaticcioSampleState() {
       },
       {
         nome: 'V065572-SGimig',
-        addr: 'Via San Gimignano, 10, MI',
+        addr: 'Via San Gimignano, 10, Milano',
         zona: 'Primaticcio',
         unita: '1',
         inizio: 'Set 2024',
@@ -651,7 +648,7 @@ function getPrimaticcioSampleState() {
       },
       {
         nome: 'GIMIG9',
-        addr: 'Vle San Gimignano, 9, MI',
+        addr: 'Viale San Gimignano, 9, Milano',
         zona: 'Primaticcio',
         unita: '1',
         inizio: 'Nov 2023',
@@ -1007,7 +1004,7 @@ async function generateDoc() {
     </div>
   `).join('');
 
-  const useLeafletMap = canRenderFullLeafletMap(mapPoints, rankedCantieri);
+  const useLeafletMap = canRenderFullLeafletMap(mapPoints);
   const mapVisual = useLeafletMap
     ? '<div id="leaflet-map" class="leaflet-map" aria-label="Mappa progetto e comparabili"></div>'
     : buildFallbackMapHtml(rankedCantieri);
